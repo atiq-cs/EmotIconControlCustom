@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TestEmoCustomControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestEmoCustomControlDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChatControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EmoListPopUp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChatEdit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TestEmoCustomControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestEmoCustomControlDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EmoListPopUp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TestEmoCustomControl.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\TestEmoCustomControl.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\TestEmoCustomControl.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\emot_icons.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\cry.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\cry_15px.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\emoPopU.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\emoPopD.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\emoPopF.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\emo01_smile.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI01_Happy.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI02_Sad.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI03_ToothHappy.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI04_LOL.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI05_worried.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI06_surprised.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI07_angry.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI08_inlove.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI09_vampire.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI10_Straightface.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI11_cry.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI12_blushing.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI13_curlylips.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI14_kiss.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI15_pacman.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI16_unsure.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI17_wink.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI18_glasses.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI19_grumpy.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI20_upset.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI21_sunglasses.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI22_confused.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI23_angel.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI24_devil.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI25_penguin.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI26_heart.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI27_laugh.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI28_sleepy.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI29_poop.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI30_emabarassed.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI31_cross.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI32_Tears.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI33_chuckle.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI34_wave.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI35_6hammer.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI37_8goat.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI38_rose.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI39_shhh.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI40_thinking.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI41_Thumbs_up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI42_thumbsdown.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI43_V-Sign.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI44_birthday.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI45_tea.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI46_fist.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI47_88bored.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI48_broken_heart.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI36_8goat.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI37_rose.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI38_shhh.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI39_thinking.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI40_Thumbs_up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI41_thumbsdown.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI42_V-Sign.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI43_birthday.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI44_tea.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI45_fist.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI46_88bored.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI47_broken_heart.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bmps\EI18_glass.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
