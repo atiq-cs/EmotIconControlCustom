@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{61D34CB3-3285-4143-8DCB-AC696A8E99EB}</ProjectGuid>
+    <RootNamespace>TestEmoCustomControl</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ChatControl.h" />
+    <ClInclude Include="ChatEdit.h" />
+    <ClInclude Include="EmoListPopUp.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="TestEmoCustomControl.h" />
+    <ClInclude Include="TestEmoCustomControlDlg.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ChatControl.cpp" />
+    <ClCompile Include="ChatEdit.cpp" />
+    <ClCompile Include="EmoListPopUp.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TestEmoCustomControl.cpp" />
+    <ClCompile Include="TestEmoCustomControlDlg.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TestEmoCustomControl.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\TestEmoCustomControl.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bmps\EI01_Happy.bmp" />
+    <Image Include="res\bmps\EI02_Sad.bmp" />
+    <Image Include="res\bmps\EI03_ToothHappy.bmp" />
+    <Image Include="res\bmps\EI04_LOL.bmp" />
+    <Image Include="res\bmps\EI05_worried.bmp" />
+    <Image Include="res\bmps\EI06_surprised.bmp" />
+    <Image Include="res\bmps\EI07_angry.bmp" />
+    <Image Include="res\bmps\EI08_inlove.bmp" />
+    <Image Include="res\bmps\EI09_vampire.bmp" />
+    <Image Include="res\bmps\EI10_Straightface.bmp" />
+    <Image Include="res\bmps\EI11_cry.bmp" />
+    <Image Include="res\bmps\EI12_blushing.bmp" />
+    <Image Include="res\bmps\EI13_curlylips.bmp" />
+    <Image Include="res\bmps\EI14_kiss.bmp" />
+    <Image Include="res\bmps\EI15_pacman.bmp" />
+    <Image Include="res\bmps\EI16_unsure.bmp" />
+    <Image Include="res\bmps\EI17_wink.bmp" />
+    <Image Include="res\bmps\EI18_glass.bmp" />
+    <Image Include="res\bmps\EI18_glasses.bmp" />
+    <Image Include="res\bmps\EI19_grumpy.bmp" />
+    <Image Include="res\bmps\EI20_upset.bmp" />
+    <Image Include="res\bmps\EI21_sunglasses.bmp" />
+    <Image Include="res\bmps\EI22_confused.bmp" />
+    <Image Include="res\bmps\EI23_angel.bmp" />
+    <Image Include="res\bmps\EI24_devil.bmp" />
+    <Image Include="res\bmps\EI25_penguin.bmp" />
+    <Image Include="res\bmps\EI26_heart.bmp" />
+    <Image Include="res\bmps\EI27_laugh.bmp" />
+    <Image Include="res\bmps\EI28_sleepy.bmp" />
+    <Image Include="res\bmps\EI29_poop.bmp" />
+    <Image Include="res\bmps\EI30_emabarassed.bmp" />
+    <Image Include="res\bmps\EI31_cross.bmp" />
+    <Image Include="res\bmps\EI32_Tears.bmp" />
+    <Image Include="res\bmps\EI33_chuckle.bmp" />
+    <Image Include="res\bmps\EI34_wave.bmp" />
+    <Image Include="res\bmps\EI35_6hammer.bmp" />
+    <Image Include="res\bmps\EI36_8goat.bmp" />
+    <Image Include="res\bmps\EI37_8goat.bmp" />
+    <Image Include="res\bmps\EI37_rose.bmp" />
+    <Image Include="res\bmps\EI38_rose.bmp" />
+    <Image Include="res\bmps\EI38_shhh.bmp" />
+    <Image Include="res\bmps\EI39_shhh.bmp" />
+    <Image Include="res\bmps\EI39_thinking.bmp" />
+    <Image Include="res\bmps\EI40_thinking.bmp" />
+    <Image Include="res\bmps\EI40_Thumbs_up.bmp" />
+    <Image Include="res\bmps\EI41_thumbsdown.bmp" />
+    <Image Include="res\bmps\EI41_Thumbs_up.bmp" />
+    <Image Include="res\bmps\EI42_thumbsdown.bmp" />
+    <Image Include="res\bmps\EI42_V-Sign.bmp" />
+    <Image Include="res\bmps\EI43_birthday.bmp" />
+    <Image Include="res\bmps\EI43_V-Sign.bmp" />
+    <Image Include="res\bmps\EI44_birthday.bmp" />
+    <Image Include="res\bmps\EI44_tea.bmp" />
+    <Image Include="res\bmps\EI45_fist.bmp" />
+    <Image Include="res\bmps\EI45_tea.bmp" />
+    <Image Include="res\bmps\EI46_88bored.bmp" />
+    <Image Include="res\bmps\EI46_fist.bmp" />
+    <Image Include="res\bmps\EI47_88bored.bmp" />
+    <Image Include="res\bmps\EI47_broken_heart.bmp" />
+    <Image Include="res\bmps\EI48_broken_heart.bmp" />
+    <Image Include="res\cry.png" />
+    <Image Include="res\cry_15px.png" />
+    <Image Include="res\emo01_smile.png" />
+    <Image Include="res\emoPopD.bmp" />
+    <Image Include="res\emoPopF.bmp" />
+    <Image Include="res\emoPopU.bmp" />
+    <Image Include="res\emot_icons.bmp" />
+    <Image Include="res\TestEmoCustomControl.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="TestEmoCustomControl.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
