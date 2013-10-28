@@ -2,13 +2,14 @@
 #include "afxcmn.h"
 #include "afxwin.h"
 //#include "xSkinButton.h"
-//#include "CDialogSK.h"	// for custom dialog sk
+#include "CDialogSK.h"	// for custom dialog sk
 
-//class CxSkinButton;
+class CxSkinButton;
 const int EMO_MAX_NO = 47;
 
 // CEmoListPopUp dialog
-class CEmoListPopUp : public CDialogEx
+//class CEmoListPopUp : public CDialogEx
+class CEmoListPopUp : public CDialogSK
 {
 	DECLARE_DYNAMIC(CEmoListPopUp)
 
@@ -27,22 +28,18 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnButtonEmoClicked(UINT nID);
+
 
 private:
 	// we do not need pointer if we use CBitmapButton instead of CxSkinButton
-	CBitmapButton m_ButtonEmo[EMO_MAX_NO];
+	CxSkinButton* m_ButtonEmo[EMO_MAX_NO];
 	CToolTipCtrl* m_pToolTipCtrl;
-
-	//CImageList* m_pImage;
-	//CButton m_ButtonEmo_01;
-	// will not work for forward declaration
-	// CxSkinButton* m_ButtonEmo[EMO_MAX_NO];
-	//CxSkinButton m_ButtonEmo_01;
-	//CButton m_ButtonEmo_01;
-	// test button for tooltip
-	//CxSkinButton m_ButtonTest;
-public:
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	//CBrush m_brush;
+//public:
+	//afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
 
-LRESULT CALLBACK GetMessageProc(int nCode, WPARAM wParam, LPARAM lParam);
+//LRESULT CALLBACK GetMessageProc(int nCode, WPARAM wParam, LPARAM lParam);

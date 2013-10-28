@@ -101,6 +101,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CDialogSK.h" />
     <ClInclude Include="ChatControl.h" />
     <ClInclude Include="ChatEdit.h" />
     <ClInclude Include="EmoListPopUp.h" />
@@ -109,8 +110,10 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestEmoCustomControl.h" />
     <ClInclude Include="TestEmoCustomControlDlg.h" />
+    <ClInclude Include="xSkinButton.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CDialogSK.cpp" />
     <ClCompile Include="ChatControl.cpp" />
     <ClCompile Include="ChatEdit.cpp" />
     <ClCompile Include="EmoListPopUp.cpp" />
@@ -120,6 +123,7 @@
     </ClCompile>
     <ClCompile Include="TestEmoCustomControl.cpp" />
     <ClCompile Include="TestEmoCustomControlDlg.cpp" />
+    <ClCompile Include="xSkinButton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TestEmoCustomControl.rc" />
