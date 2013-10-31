@@ -6,6 +6,7 @@
 #include "stdafx.h"
 #include <strsafe.h>
 
+/*
 // ref: http://msdn.microsoft.com/en-us/library/windows/desktop/ms680582(v=vs.85).aspx
 void ErrorExit(LPTSTR lpszFunction) 
 { 
@@ -40,3 +41,4 @@ void ErrorExit(LPTSTR lpszFunction)
     // ExitProcess(dw); 
 }
 
+*/

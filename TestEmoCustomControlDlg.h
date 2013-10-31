@@ -1,4 +1,3 @@
-
 // TestEmoCustomControlDlg.h : header file
 //
 
@@ -19,18 +18,23 @@ private:
 	CChatEdit m_chatBoxCtrl;
 	CEmoListPopUp *m_emoListPopUpDlg;
 	CBitmapButton emoPopUpBmp;
+
+	BOOL m_bDialogDestroyed;		// indicates whether emo pop up dialog is destroyed by On Ok or On Cancel
+
 // Construction
 public:
 	CTestEmoCustomControlDlg(CWnd* pParent = NULL);	// standard constructor
 	~CTestEmoCustomControlDlg();
+	void DestroyEmoPopUpDlg(bool CalledFromEmoClass = false);
+	void InsertEmoCode(int emoCodeIndex);
+	// insert emot icons
 
 // Dialog Data
 	enum { IDD = IDD_TESTEMOCUSTOMCONTROL_DIALOG };
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	//virtual BOOL PreTranslateMessage(MSG* pMsg);
-
 
 // Implementation
 protected:
