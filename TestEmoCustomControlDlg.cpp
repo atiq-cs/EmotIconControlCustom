@@ -292,7 +292,7 @@ void CTestEmoCustomControlDlg::OnBnClickedEmoPop()
 	// TODO: Add your control notification handler code here
 	// modeless dialog creation ref: http://www.codeproject.com/Articles/1651/Tutorial-Modeless-Dialogs-with-MFC
 	if (m_emoListPopUpDlg == NULL) {
-		m_emoListPopUpDlg = new CEmoListPopUp();
+		m_emoListPopUpDlg = new CEmoListPopUp(this);
 		m_emoListPopUpDlg->Create(CEmoListPopUp::IDD);
 		m_emoListPopUpDlg->ShowWindow(SW_SHOW);
 	}
@@ -310,11 +310,7 @@ void CTestEmoCustomControlDlg::OnSetFocus(CWnd* pOldWnd)
 
 	// TODO: Add your message handler code here
 	// destroy emo pop up
-	if (m_emoListPopUpDlg) {
-		// m_emoListPopUpDlg->ShowWindow(SW_HIDE);
-		delete m_emoListPopUpDlg;
-		m_emoListPopUpDlg = NULL;
-	}
+	DestroyEmoPopUpDlg();
 }
 
 // ref: http://msdn.microsoft.com/en-us/library/1f31c334(v=vs.90).aspx
@@ -324,18 +320,21 @@ void CTestEmoCustomControlDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMi
 
 	// TODO: Add your message handler code here
 	// messages ref: http://msdn.microsoft.com/en-us/library/windows/desktop/ms646274(v=vs.85).aspx
-	if (nState==WA_CLICKACTIVE && m_emoListPopUpDlg) {
+	if (nState==WA_CLICKACTIVE && m_emoListPopUpDlg /*&& pWndOther != m_emoListPopUpDlg*/) {
 		// m_emoListPopUpDlg->ShowWindow(SW_HIDE);
-		delete m_emoListPopUpDlg;
+				//AfxMessageBox(_T("we are here"));
+		DestroyEmoPopUpDlg();
+	}
+}
+
+void CTestEmoCustomControlDlg::DestroyEmoPopUpDlg(bool CalledFromEmoClass) {
+	if (m_emoListPopUpDlg) {
+		if (CalledFromEmoClass == false)
+			delete m_emoListPopUpDlg;
 		m_emoListPopUpDlg = NULL;
 	}
 }
 
-/*BOOL CTestEmoCustomControlDlg::PreTranslateMessage(MSG* pMsg)
-{
-	// TODO: Add your specialized code here and/or call the base class
-	if (NULL != m_pTooltip)
-        m_pTooltip->RelayEvent(pMsg);
+void CTestEmoCustomControlDlg::InsertEmoCode(int emoCodeIndex) {
 
-	return CDialog::PreTranslateMessage(pMsg);
-}*/
+}

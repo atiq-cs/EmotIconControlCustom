@@ -34,7 +34,7 @@
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 
 
-void ErrorExit(LPTSTR lpszFunction);			// for getting error codes
+//void ErrorExit(LPTSTR lpszFunction);			// for getting error codes
 
 
 

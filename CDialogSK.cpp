@@ -151,7 +151,6 @@ void CDialogSK::Init()
                         GetProcAddress(hUser32, "SetLayeredWindowAttributes");
 }
 
-
 void CDialogSK::FreeResources()
 {
     if (m_hBitmap)
@@ -201,7 +200,6 @@ DWORD CDialogSK::SetBitmap(HBITMAP hBitmap)
         Invalidate();
     
     return 1;
-    
 }
 
 DWORD CDialogSK::SetBitmap(LPCTSTR lpszFileName)
