@@ -42,12 +42,6 @@
     <ClInclude Include="ChatEdit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="xSkinButton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CDialogSK.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TestEmoCustomControl.cpp">
@@ -66,12 +60,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ChatEdit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xSkinButton.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CDialogSK.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

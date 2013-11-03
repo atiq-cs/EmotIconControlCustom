@@ -47,8 +47,7 @@ END_MESSAGE_MAP()
 // CTestEmoCustomControlDlg dialog
 CTestEmoCustomControlDlg::CTestEmoCustomControlDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CTestEmoCustomControlDlg::IDD, pParent),
-	m_emoListPopUpDlg(NULL) //,
-	//m_pTooltip(NULL)
+	m_emoListPopUpDlg(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	if (! emoPopUpBmp.LoadBitmaps(_T("IDB_BMP_EMOPOP_UP"), _T("IDB_BMP_EMOPOP_DOWN"), _T("IDB_BMP_EMOPOP_FOCUS"), _T("IDB_BMP_EMOPOP_UP"))) {
@@ -60,17 +59,35 @@ CTestEmoCustomControlDlg::CTestEmoCustomControlDlg(CWnd* pParent /*=NULL*/)
 		AfxThrowResourceException();
 	}
 
+	static TCHAR *EmoCodesTmp[EMO_MAX_NO] = {_T(":)"), _T(":("), _T(":D"), _T(":P"), _T(":S"), _T(":O"), _T(":@"), _T(":-["), _T(":-]"), _T(":|"),
+				_T(":'("), _T(":>"), _T(":3"), _T(":*"), _T(":V"), _T(":/"), _T(";)"), _T(">:("), _T(">:O"), _T("8)"), _T("8|"), _T("O.o"),
+				_T("O:)"), _T("3:)"), _T("L(\")"), _T("L3"), _T(":))"), _T(":Z"), _T(":POOP"), _T(":$"), _T(":0"), _T("::3"), _T(":4"),
+				_T(":-h"), _T(":6"), _T(":8"), _T(":9"), _T(":12"), _T(":-?"), _T("(Y)"), _T(":54"), _T(":56"), _T(":60"), _T(":67"),
+				_T(":72"), _T(":88"), _T("=((")};
+
+	static TCHAR *EmoToolTipTextTmp[EMO_MAX_NO] = {_T("Smile"), _T("Sad"), _T("Laugh"), _T("Cheeky"), _T("Worried"), _T("Surprised"), _T("Angry"), _T("Love"), _T("Vampire"), _T("Straight Face"),
+				_T("Cry"), _T("Blush"), _T("Curly Lips"), _T("Kiss"), _T("Pacman "), _T("Uncertain"), _T("Wink"), _T("Grumpy"), _T("Upset"), _T("Glass"), _T("Sunglass"), _T("Confused"),
+				_T("Angel"), _T("Devil"), _T("Penguin"), _T("Heart"), _T("Laugh"), _T("Sleepy"), _T("Poop"), _T("Embarassed"), _T("Leaps are sealed"), _T("Tear on on eye"), _T("Giggle"),
+				_T("Wave hands"), _T("Hammer"), _T("Pig"), _T("Rose"), _T("Hush"), _T("Thinking"), _T("Thumbs up"), _T("Thumbs down"), _T("Victory"), _T("Birthday Cake"), _T("Tea"),
+				_T("Fist"), _T("Bored"), _T("Broken Heart")};
+
+
+	for (int i=0;i<EMO_MAX_NO; i++) {
+		EmoCodes[i] = EmoCodesTmp[i];
+		EmoToolTipText[i] = EmoToolTipTextTmp[i];
+	}
+	
 }
 
 CTestEmoCustomControlDlg::~CTestEmoCustomControlDlg() {
-	//delete m_pTooltip;
+	
 }
 
 void CTestEmoCustomControlDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CHATCUSTOM, m_ChatEmoBox);
-	DDX_Control(pDX, IDC_EDIT_CHAT_IN, m_chatBoxCtrl);
+	DDX_Control(pDX, IDC_EDIT_CHAT_IN, m_chatBoxEditCtrl);
 	DDX_Control(pDX, IDC_EMOPOP, emoPopUpBmp);
 }
 
@@ -206,7 +223,7 @@ void CTestEmoCustomControlDlg::OnBnClickedOk()
 	//if (chatBoxEditCtrl == NULL)
 		//return;
 	//chatBoxEditCtrl->GetWindowText(m_chInText);
-	m_chatBoxCtrl.GetWindowText(m_chInText);
+	m_chatBoxEditCtrl.GetWindowText(m_chInText);
 	//GetDlgItemText(IDC_EDIT_CHAT_IN, m_chInText);
 	if (m_chInText.GetLength() > 0) {
 		// primarily important operation here is to sent the text and print
@@ -216,9 +233,9 @@ void CTestEmoCustomControlDlg::OnBnClickedOk()
 		//ATLASSERT(s == _T("Friday, March 19, 1999"));   
 		// m_emoListControl.SetItemText(n, 1, tmStr);
 		//SetDlgItemText(IDC_EDIT_CHAT_IN, _T(""));
-		m_chatBoxCtrl.SetWindowText(_T(""));
+		m_chatBoxEditCtrl.SetWindowText(_T(""));
 	}
-	GotoDlgCtrl(&m_chatBoxCtrl);		// ref: http://blogs.msdn.com/b/oldnewthing/archive/2004/08/02/205624.aspx
+	GotoDlgCtrl(&m_chatBoxEditCtrl);		// ref: http://blogs.msdn.com/b/oldnewthing/archive/2004/08/02/205624.aspx
 	// No need to destroy now
 	// CDialog::OnOK();
 }
@@ -254,13 +271,13 @@ void CTestEmoCustomControlDlg::OnSize(UINT nType, int cx, int cy)
 	//CEdit *chatBoxEditCtrl = (CEdit *) GetDlgItem(IDC_EDIT_CHAT_IN);
 	//if (chatBoxEditCtrl == NULL)
 		//return;
-   /*if (::IsWindow(m_chatBoxCtrl.GetSafeHwnd()))
+   /*if (::IsWindow(m_chatBoxEditCtrl.GetSafeHwnd()))
 	{
 		int xEditBox = cx/15;
 		int yEditBox = cy * 413 / 600 - 21 / 2;
 		int cxEditBox = cx * 13 / 15;
 		int cyEditBox = cy * 49 / 200 - 21 / 2;
-		m_chatBoxCtrl.MoveWindow (xEditBox, yEditBox, cxEditBox, cyEditBox);
+		m_chatBoxEditCtrl.MoveWindow (xEditBox, yEditBox, cxEditBox, cyEditBox);
 	}*/
 
    CButton *buttonCtl = (CButton *) GetDlgItem(IDOK);
@@ -336,5 +353,22 @@ void CTestEmoCustomControlDlg::DestroyEmoPopUpDlg(bool CalledFromEmoClass) {
 }
 
 void CTestEmoCustomControlDlg::InsertEmoCode(int emoCodeIndex) {
+	DWORD caretPos = m_chatBoxEditCtrl.GetSel();	// ref: http://msdn.microsoft.com/en-us/library/1hyt7tyx(v=vs.110).aspx
+	CString m_ChatText;
+	m_chatBoxEditCtrl.GetWindowText(m_ChatText);
+	// AfxMessageBox(m_ChatText);
+	CString emocode(EmoCodes[emoCodeIndex]);
+	emocode += _T(" ");
+	m_ChatText.Insert(HIWORD(caretPos), emocode);
+	m_chatBoxEditCtrl.SetWindowText(m_ChatText);
 
+	// go to control first
+	GotoDlgCtrl(&m_chatBoxEditCtrl);
+	// then set caret position
+	m_chatBoxEditCtrl.SetSel(HIWORD(caretPos)+emocode.GetLength(), LOWORD(caretPos)+emocode.GetLength());
+}
+
+// Purpose of this function is to return tooltip text
+CString CTestEmoCustomControlDlg::GetEmoToolTipText(int index) {
+	return CString(EmoToolTipText[index]) + _T("   ") + CString(EmoCodes[index]);
 }
