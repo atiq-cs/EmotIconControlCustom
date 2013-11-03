@@ -742,7 +742,7 @@ void CChatControl::DrawChatText(CString str)
 // bits. 
 void CChatControl::VirtualDrawEmotIcon()
 {
-	// load IDB_BMP_SMILE01 from our resources
+	/*// load IDB_BMP_SMILE01 from our resources
 	CBitmap bmp;
 	// if (bmp.LoadBitmap(IDB_BMP_SMILE01))
 	CPngImage pngImage;
@@ -754,8 +754,9 @@ void CChatControl::VirtualDrawEmotIcon()
 	{
 		// Get the size of the bitmap
 		BITMAP bmpInfo;
-		bmp.GetBitmap(&bmpInfo);
-		CSize cch(bmpInfo.bmWidth, bmpInfo.bmHeight);		// ref: http://msdn.microsoft.com/en-us/library/xt679a2s(v=vs.110).aspx
+		bmp.GetBitmap(&bmpInfo);*/
+		//CSize cch(bmpInfo.bmWidth, bmpInfo.bmHeight);		// ref: http://msdn.microsoft.com/en-us/library/xt679a2s(v=vs.110).aspx
+		CSize cch(24, 24);
 		// check if drawing is not possible
 		CPoint ptRes = ptEnd - (ptStart+cch);			// ref: http://msdn.microsoft.com/en-us/library/t792xy69(v=vs.110).aspx
 		// not possible in single line
@@ -782,12 +783,12 @@ void CChatControl::VirtualDrawEmotIcon()
 		and ref: http://social.msdn.microsoft.com/Forums/vstudio/en-US/8a636954-5a3a-4a10-9e84-386ce057b2d9/colour-problems-when-scaling-a-bitmap-with-cdcstretchblt */	
 
 		ptStart.x += cch.cx;
-	}
+	/*}
 	else
 	{
 		TRACE0("ERROR: Where's IDB_BMP_SMILE01?\n");
 		return ;
-	}
+	}*/
 }
 
 // multiline drawing using drawText
@@ -1014,8 +1015,9 @@ void CChatControl::PaintUIElements() {
 			}
 			// have to implement selection according to index
 			// requires implementation on VirtualDrawEmotIcons as well
-			// CBitmap bmp;
+			CBitmap bmp;
 			// if (bmp.LoadBitmap(IDB_BMP_SMILE01))
+			/*// for PNG images
 			CImage image;
 			image.LoadFromResource(AfxGetInstanceHandle(), IDB_PNG_SMILE01);
 			//image.AlphaBlend(pDC, curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, 0, 0, curChatElement.size.cx, curChatElement.size.cy);
@@ -1025,23 +1027,27 @@ void CChatControl::PaintUIElements() {
 			if (pngImage.Load(IDB_PNG_SMILE01)) {
 				pngImage.transp
 			}
-
-			if (bmp.Attach(pngImage.Detach()))// ref: http://msdn.microsoft.com/en-us/library/97h2k0zx.aspx 
-			//if (bmp.LoadBitmap(IDB_PNG_SMILE01))			
+			*/
+			//if (bmp.Attach(pngImage.Detach()))// ref: http://msdn.microsoft.com/en-us/library/97h2k0zx.aspx 
+			if (bmp.LoadBitmap(IDB_BMP_EMOTICON_01))			
 			{
 				// COLORREF oldBkColor = pDC->SetBkColor(TRANSPARENT);
 				// Create an in-memory DC compatible with the display DC we're using to paint
+				/*COLORREF oldBkColor;
+				if (isAlternate) {
+					oldBkColor = pDC->SetBkColor(RGB(170,194,154));
+				}*/
 				CDC dcMemory;
 				dcMemory.CreateCompatibleDC(pDC);
 				// Select the bitmap into the in-memory DC
 				CBitmap* pOldBitmap = dcMemory.SelectObject(&bmp);
 				// Copy the bits from the in-memory DC into the on-screen DC to actually do the painting.
-				// pDC->BitBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, &dcMemory, 0, 0, SRCCOPY);
+				pDC->BitBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, &dcMemory, 0, 0, SRCCOPY);
 				// transparency not working yet
 				// pDC->TransparentBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, &dcMemory, 0, 0, curChatElement.size.cx, curChatElement.size.cy, RGB(255,255,255));
 				dcMemory.SelectObject(pOldBitmap);
 				// pDC->SetBkColor(oldBkColor);
-			}*/
+			}
 			drawStarted = true;
 			break;
 		}

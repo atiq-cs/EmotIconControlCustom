@@ -127,13 +127,13 @@ private:
 		// functions to pre-calculate drawing elements
 	int AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType);
 	void PaintElements();
+	BOOL RegisterWndClass();
 
 public:
 	CChatControl(void);
 	~CChatControl(void);
 
 
-	BOOL RegisterWndClass();
 	// not necessary
 	//virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	void PostChatMessage(CString chat_message, CTime timedate);
@@ -146,7 +146,6 @@ protected:
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	DECLARE_MESSAGE_MAP()
 	virtual void PreSubclassWindow();
-public:
 	// afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 };

@@ -1,3 +1,4 @@
+
 #pragma once
 #include "afxcmn.h"
 #include "afxwin.h"
@@ -6,8 +7,6 @@
 #include "TestEmoCustomControlDlg.h"	// for referene to this dialog
 
 //class CxSkinButton;
-const int EMO_MAX_NO = 47;
-
 // CEmoListPopUp dialog
 //class CEmoListPopUp : public CDialogEx
 class CEmoListPopUp : public CDialogEx
@@ -18,10 +17,16 @@ public:
 	CEmoListPopUp(CTestEmoCustomControlDlg* pDlg, CWnd* pParent = NULL);   // standard constructor
 	virtual ~CEmoListPopUp();
 	//CTestEmoCustomControlDlg& m_rChatBoxDlg;
-	CTestEmoCustomControlDlg* m_rChatBoxDlg;
 
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_EMOPOP };
+
+private:
+	// our private variables
+	CBitmapButton* m_ButtonEmo[EMO_MAX_NO];
+	CToolTipCtrl* m_pToolTipCtrl;
+	CTestEmoCustomControlDlg* m_pChatBoxDlg;
+	int selectedEmoIndex;
 
 protected:
 	//LRESULT CALLBACK GetMessageProc(int nCode, WPARAM wParam, LPARAM lParam);
@@ -34,19 +39,14 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnButtonEmoClicked(UINT nID);
+	virtual void OnCancel();
+	virtual void OnOK();
 
 
-private:
-	// we do not need pointer if we use CBitmapButton instead of CxSkinButton
-	CBitmapButton* m_ButtonEmo[EMO_MAX_NO];
-	CToolTipCtrl* m_pToolTipCtrl;
-	int selectedEmoIndex;
 	//CBrush m_brush;
 //public:
 	//afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	//virtual void PostNcDestroy();
-	virtual void OnCancel();
-	virtual void OnOK();
 };
 
 //LRESULT CALLBACK GetMessageProc(int nCode, WPARAM wParam, LPARAM lParam);

@@ -1,3 +1,4 @@
+
 // EmoListPopUp.cpp : implementation file
 //
 
@@ -13,7 +14,7 @@ IMPLEMENT_DYNAMIC(CEmoListPopUp, CDialogEx)
 
 CEmoListPopUp::CEmoListPopUp(CTestEmoCustomControlDlg* pDlg, CWnd* pParent)
 	: CDialogEx(CEmoListPopUp::IDD, pParent),
-	m_rChatBoxDlg(pDlg),
+	m_pChatBoxDlg(pDlg),
 	selectedEmoIndex(-1)
 {
 	for (int i=0; i<EMO_MAX_NO; i++)
@@ -56,23 +57,10 @@ BOOL CEmoListPopUp::OnInitDialog()
            return TRUE;
     }
 
-	// Emo code
-	TCHAR *EmoCodes[EMO_MAX_NO] = {_T(":)"), _T(":("), _T(":D"), _T(":P"), _T(":S"), _T(":O"), _T(":@"), _T(":-["), _T(":-]"), _T(":|"),
-				_T(":'("), _T(":>"), _T(":3"), _T(":*"), _T(":V"), _T(":/"), _T(";)"), _T(">:("), _T(">:O"), _T("8)"), _T("8|"), _T("O.o"),
-				_T("O:)"), _T("3:)"), _T("L(\")"), _T("L3"), _T(":))"), _T(":Z"), _T(":POOP"), _T(":$"), _T(":0"), _T("::3"), _T(":4"),
-				_T(":-h"), _T(":6"), _T(":8"), _T(":9"), _T(":12"), _T(":-?"), _T("(Y)"), _T(":54"), _T(":56"), _T(":60"), _T(":67"),
-				_T(":72"), _T(":88"), _T("=((")};
-	// Tool-tip
-	TCHAR *EmoToolTipText[EMO_MAX_NO] = {_T("Smile"), _T("Sad"), _T("Laugh"), _T("Cheeky"), _T("Worried"), _T("Surprised"), _T("Angry"), _T("Love"), _T("Vampire"), _T("Straight Face"),
-				_T("Cry"), _T("Blush"), _T("Curly Lips"), _T("Kiss"), _T("Pacman "), _T("Uncertain"), _T("Wink"), _T("Grumpy"), _T("Upset"), _T("Glass"), _T("Sunglass"), _T("Confused"),
-				_T("Angel"), _T("Devil"), _T("Penguin"), _T("Heart"), _T("Laugh"), _T("Sleepy"), _T("Poop"), _T("Embarassed"), _T("Leaps are sealed"), _T("Tear on on eye"), _T("Giggle"),
-				_T("Wave hands"), _T("Hammer"), _T("Pig"), _T("Rose"), _T("Hush"), _T("Thinking"), _T("Thumbs up"), _T("Thumbs down"), _T("Victory"), _T("Birthday Cake"), _T("Tea"),
-				_T("Fist"), _T("Bored"), _T("Broken Heart")};
-
 	for (int i=0; i<EMO_MAX_NO; i++) {
 		// doesn't work without PreTranslateMessage
 		//if (m_pToolTipCtrl->AddTool(&m_ButtonEmo[i],CString(EmoToolTipText[i]) + _T("   ") + CString(EmoCodes[i])))
-		if (m_pToolTipCtrl->AddTool(m_ButtonEmo[i],CString(EmoToolTipText[i]) + _T("   ") + CString(EmoCodes[i])))
+		if (m_pToolTipCtrl->AddTool(m_ButtonEmo[i],m_pChatBoxDlg->GetEmoToolTipText(i)))
 			TRACE("Unable to add Dialog to the tooltip\n");
 	}
 
@@ -144,6 +132,9 @@ BOOL CEmoListPopUp::OnEraseBkgnd(CDC* pDC)
 void CEmoListPopUp::OnButtonEmoClicked(UINT nID) {
 	int nButton = nID - IDC_BUTTON_EMO01;
 	selectedEmoIndex = nButton;
+	m_pChatBoxDlg->InsertEmoCode(selectedEmoIndex);
+	m_pChatBoxDlg->DestroyEmoPopUpDlg(true);
+	CDialogEx::OnOK();
 	/*CString dbg;
 	dbg.Format(_T("got click on button %d"), nButton);
 	AfxMessageBox(dbg);*/
@@ -165,10 +156,10 @@ void CEmoListPopUp::OnButtonEmoClicked(UINT nID) {
 void CEmoListPopUp::PostNcDestroy()
 {
 	// TODO: Add your specialized code here and/or call the base class
-	//m_rChatBoxDlg->DestroyEmoPopUpDlg();
+	//m_pChatBoxDlg->DestroyEmoPopUpDlg();
 
 	// AfxMessageBox(_T("Post nc called"));
-	m_rChatBoxDlg->DestroyEmoPopUpDlg(true);
+	m_pChatBoxDlg->DestroyEmoPopUpDlg(true);
 
 	CDialogEx::PostNcDestroy();
 }
@@ -178,7 +169,7 @@ void CEmoListPopUp::PostNcDestroy()
 void CEmoListPopUp::OnCancel()
 {
 	// TODO: Add your specialized code here and/or call the base class
-	m_rChatBoxDlg->DestroyEmoPopUpDlg(true);
+	m_pChatBoxDlg->DestroyEmoPopUpDlg(true);
 	CDialogEx::OnCancel();
 }
 
@@ -190,8 +181,8 @@ void CEmoListPopUp::OnOK()
 	// no button is selected
 	// if a button is selected, save its index and destroy the dialog
 	if (selectedEmoIndex >= 0) {
-		m_rChatBoxDlg->InsertEmoCode(selectedEmoIndex);
-		m_rChatBoxDlg->DestroyEmoPopUpDlg(true);
+		m_pChatBoxDlg->InsertEmoCode(selectedEmoIndex);
+		m_pChatBoxDlg->DestroyEmoPopUpDlg(true);
 		CDialogEx::OnOK();
 	}
 }

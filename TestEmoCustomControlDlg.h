@@ -1,3 +1,4 @@
+
 // TestEmoCustomControlDlg.h : header file
 //
 
@@ -8,6 +9,7 @@
 #include "afxwin.h"
 
 class CEmoListPopUp;		// partial declaration
+const int EMO_MAX_NO = 47;
 
 // CTestEmoCustomControlDlg dialog
 class CTestEmoCustomControlDlg : public CDialog
@@ -15,19 +17,25 @@ class CTestEmoCustomControlDlg : public CDialog
 // private members here
 private:
 	CChatControl m_ChatEmoBox;
-	CChatEdit m_chatBoxCtrl;
+	CChatEdit m_chatBoxEditCtrl;
 	CEmoListPopUp *m_emoListPopUpDlg;
 	CBitmapButton emoPopUpBmp;
 
 	BOOL m_bDialogDestroyed;		// indicates whether emo pop up dialog is destroyed by On Ok or On Cancel
+		// Emo code
+	TCHAR *EmoCodes[EMO_MAX_NO];
+	TCHAR *EmoToolTipText[EMO_MAX_NO];
+	// Tool-tip
+
 
 // Construction
 public:
 	CTestEmoCustomControlDlg(CWnd* pParent = NULL);	// standard constructor
 	~CTestEmoCustomControlDlg();
 	void DestroyEmoPopUpDlg(bool CalledFromEmoClass = false);
-	void InsertEmoCode(int emoCodeIndex);
 	// insert emot icons
+	void InsertEmoCode(int emoCodeIndex);
+	CString GetEmoToolTipText(int index);
 
 // Dialog Data
 	enum { IDD = IDD_TESTEMOCUSTOMCONTROL_DIALOG };
