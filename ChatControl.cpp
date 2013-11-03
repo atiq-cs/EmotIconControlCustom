@@ -962,13 +962,30 @@ void CChatControl::PaintUIElements() {
 			}
 
 			pDC->SetTextColor(RGB(11,136,99));		// ref: http://msdn.microsoft.com/en-us/library/vstudio/wf4k5sew.aspx
+			/*// set background color
+			COLORREF oldBkColor;
+			if (isAlternate==false) {
+				oldBkColor = pDC->SetBkColor(RGB(170,194,154));
+			}*/
 			// set name heading font
 			if (pOldFont == NULL)
 				pOldFont = pDC->SelectObject(&headingFont);
 			else
 				pDC->SelectObject(&headingFont);
-			pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.text);
+
+			if (isAlternate) {
+				pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.text);
+			}
+			else {
+				COLORREF oldBkColor = pDC->SetBkColor(RGB(170,194,154));
+				pDC->ExtTextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, ETO_OPAQUE, CRect(curChatElement.ptStart.x, curChatElement.ptStart.y, ptEnd.x+timeWidth, curChatElement.ptStart.y+yCharHeading), curChatElement.text, NULL);
+				pDC->SetBkColor(oldBkColor);
+			}
+
 			pDC->SetTextColor(oldColor);
+			/*if (isAlternate==false) {
+				pDC->SetBkColor(oldBkColor);
+			}*/
 			drawStarted = true;
 			if (isAlternate)
 				isAlternate = false;
@@ -997,7 +1014,7 @@ void CChatControl::PaintUIElements() {
 			if (preY == curChatElement.ptStart.y)
 				pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.text);
 			else {  // if new line
-				pDC->ExtTextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, ETO_OPAQUE, CRect(curChatElement.ptStart.x, curChatElement.ptStart.y, ptEnd.x, curChatElement.ptStart.y+yCharChatText), curChatElement.text, NULL);
+				pDC->ExtTextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, ETO_OPAQUE, CRect(curChatElement.ptStart.x, curChatElement.ptStart.y, ptEnd.x+timeWidth, curChatElement.ptStart.y+yCharChatText), curChatElement.text, NULL);
 				preY = curChatElement.ptStart.x;
 			}
 			if (isAlternate) {
