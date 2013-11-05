@@ -47,12 +47,11 @@ END_MESSAGE_MAP()
 // CTestEmoCustomControlDlg dialog
 CTestEmoCustomControlDlg::CTestEmoCustomControlDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CTestEmoCustomControlDlg::IDD, pParent),
-	m_emoListPopUpDlg(NULL)
+	m_emoListPopUpDlg(NULL),
+	m_ChatEmoBox(this)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	if (! emoPopUpBmp.LoadBitmaps(_T("IDB_BMP_EMOPOP_UP"), _T("IDB_BMP_EMOPOP_DOWN"), _T("IDB_BMP_EMOPOP_FOCUS"), _T("IDB_BMP_EMOPOP_UP"))) {
-	
-	//if (! emoPopUpBmp.LoadBitmaps(_T("IDB_BMP_EMOTICON_01"), _T("IDB_BMP_EMOTICON_01"), _T("IDB_BMP_EMOTICON_01"), _T("IDB_BMP_EMOTICON_01"))) {
 	// require definition in resource.h
 	//if (! emoPopUpBmp.LoadBitmaps(IDB_BMP_EMOPOP_UP, IDB_BMP_EMOPOP_DOWN, IDB_BMP_EMOPOP_FOCUS, IDB_BMP_EMOPOP_UP)) {
 		AfxMessageBox(_T("Failed to load bitmaps for buttons\n"));
@@ -70,7 +69,6 @@ CTestEmoCustomControlDlg::CTestEmoCustomControlDlg(CWnd* pParent /*=NULL*/)
 				_T("Angel"), _T("Devil"), _T("Penguin"), _T("Heart"), _T("Laugh"), _T("Sleepy"), _T("Poop"), _T("Embarassed"), _T("Leaps are sealed"), _T("Tear on on eye"), _T("Giggle"),
 				_T("Wave hands"), _T("Hammer"), _T("Pig"), _T("Rose"), _T("Hush"), _T("Thinking"), _T("Thumbs up"), _T("Thumbs down"), _T("Victory"), _T("Birthday Cake"), _T("Tea"),
 				_T("Fist"), _T("Bored"), _T("Broken Heart")};
-
 
 	for (int i=0;i<EMO_MAX_NO; i++) {
 		EmoCodes[i] = EmoCodesTmp[i];
@@ -181,7 +179,6 @@ void CTestEmoCustomControlDlg::OnSysCommand(UINT nID, LPARAM lParam)
 // If you add a minimize button to your dialog, you will need the code below
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
-
 void CTestEmoCustomControlDlg::OnPaint()
 {
 	if (IsIconic())
@@ -371,4 +368,14 @@ void CTestEmoCustomControlDlg::InsertEmoCode(int emoCodeIndex) {
 // Purpose of this function is to return tooltip text
 CString CTestEmoCustomControlDlg::GetEmoToolTipText(int index) {
 	return CString(EmoToolTipText[index]) + _T("   ") + CString(EmoCodes[index]);
+}
+
+// Purpose of this function is to return array of emo code
+TCHAR** CTestEmoCustomControlDlg::GetEmoCodeList() {
+	return EmoCodes;
+}
+
+// Purpose of this function is to return array of emo code
+int CTestEmoCustomControlDlg::GetEmoCount() {
+	return EMO_MAX_NO;
 }

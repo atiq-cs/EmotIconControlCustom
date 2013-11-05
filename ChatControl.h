@@ -10,6 +10,8 @@
 #include "resource.h"		// for IDC_CHATCUSTOM
 #define CUSTOMWNDCLASS TEXT("CChatControl")
 
+
+class CTestEmoCustomControlDlg;
 // sent status updates
 enum MESSAGE_SEND_STATUS { Sent, Pending, Delivered };
 
@@ -108,6 +110,8 @@ private:
 
 	CString headingText;
 	CString dateText;
+	CTestEmoCustomControlDlg* m_pMainDlg;
+	TCHAR **pEmoCodesList;
 
 	// Private functions
 	void OnInitChatControl();
@@ -116,7 +120,7 @@ private:
 	int DrawMessageEmo(CString message);
 	void DrawChatText(CString str);
 	bool VirtualDrawTextMultiLine(CString str);
-	void VirtualDrawEmotIcon();
+	void VirtualDrawEmotIcon(int index);
 	CString ExtractFittableLineFromStr(const CString str);
 	int GetFittablePositionRecursive(const CString str, int iMin, int iMax);
 	bool IsFittableInRectangle(const CString gStr, const int index);
@@ -128,9 +132,10 @@ private:
 	int AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType);
 	void PaintElements();
 	BOOL RegisterWndClass();
+	int FindEmoCode(int startIndex, CString str, int* foundEmoIndex);
 
 public:
-	CChatControl(void);
+	CChatControl(CTestEmoCustomControlDlg* pDlg);
 	~CChatControl(void);
 
 

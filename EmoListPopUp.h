@@ -7,8 +7,10 @@
 #include "TestEmoCustomControlDlg.h"	// for referene to this dialog
 
 //class CxSkinButton;
+
+//class CTestEmoCustomControlDlg;
+
 // CEmoListPopUp dialog
-//class CEmoListPopUp : public CDialogEx
 class CEmoListPopUp : public CDialogEx
 {
 	DECLARE_DYNAMIC(CEmoListPopUp)
