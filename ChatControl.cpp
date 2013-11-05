@@ -187,7 +187,7 @@ void CChatControl::OnInitChatControl() {
     pdc->GetTextMetrics(&tm); 
     // xChar = tm.tmAveCharWidth; 
     // xUpper = (tm.tmPitchAndFamily & 1 ? 3 : 2) * xChar/2; 
-	yCharDate = tm.tmHeight + tm.tmExternalLeading+5;
+	yCharDate = tm.tmHeight + tm.tmExternalLeading+4;
 	cyScrollUnit = yCharDate;
 	// get height for font 1
 	pdc->SelectObject(&headingFont);
@@ -656,6 +656,7 @@ int CChatControl::DrawMessageEmo(CString message)
 		pEmoCodesList = m_pMainDlg->GetEmoCodeList();
 	}
 
+
 	// minimum length of emot icons = 2
 	// maximum length of emot icons = 3, one emo of length 5  :POOP
 	// starting charset of emot icons ":;>8O3L(="
@@ -669,17 +670,20 @@ int CChatControl::DrawMessageEmo(CString message)
 	int emoIndex = 0;
 	while ((emoPos = FindEmoCode(startPos, message, &emoIndex)) >= 0) {
 		// emo found, draw now
-		token = message.Mid(startPos, emoPos-startPos);
-		if (PreviousItemType == BITMAP)
-			ptStart.x += cxChatTextHSpace;
-		DrawChatText(token);
-		PreviousItemType = TEXTSTR;
-
+		// whether there is any text before emot icon
+		if (emoPos>startPos) {
+			token = message.Mid(startPos, emoPos-startPos);
+			if (PreviousItemType == BITMAP)
+				ptStart.x += cxChatTextHSpace;
+			DrawChatText(token);
+			PreviousItemType = TEXTSTR;
+		}
 
 		// add vspace before and after emo, to solve spacing problem of text after emo
 		if (PreviousItemType == TEXTSTR)
 			ptStart.x += cxChatTextHSpace;
 		VirtualDrawEmotIcon(emoIndex);
+		CString tmpDbg(pEmoCodesList[emoIndex]);
 		startPos = emoPos + _tcslen(pEmoCodesList[emoIndex]);
 	}
 	if ( message.GetLength()-startPos > 0) {
@@ -745,6 +749,38 @@ int CChatControl::FindEmoCode(int startIndex, CString str, int* foundEmoIndex) {
 	int nStartEmoChar = 9;
 	int nEmoCount = m_pMainDlg->GetEmoCount();
 
+	// effect of :))
+	// 0 => 26
+	// 1 <-> 26 => --
+
+	// effect of :88
+	// 35 => 45
+	// 36 <-> 45 => 35 <-> 44
+
+	// effect of :60 and :67
+	// 34, 35 => 42, 43
+	// 36 <-> 43 => 34, 41
+
+	// effect of :POOP
+	// 4 => 28
+	// 5 <-> 27 => -= 2
+	// 28 => --
+	// 29 <-> 33 => same position
+	// 34, 35 => 42, 43
+	// 36 => -= 2
+	// 37 => 45
+	// 38 <-> 44 => -=3
+	// 45 => 44
+	// 46 => same position
+	static TCHAR *EmoCodeMap[EMO_MAX_NO] = {_T(":))"), _T(":)"), _T(":("), _T(":D"), _T(":POOP"), _T(":P"), _T(":S"), _T(":O"), _T(":@"), _T(":-["), _T(":-]"), _T(":|"),
+				_T(":'("), _T(":>"), _T(":3"), _T(":*"), _T(":V"), _T(":/"), _T(";)"), _T(">:("), _T(">:O"), _T("8)"), _T("8|"), _T("O.o"),		// starting index = 12
+				_T("O:)"), _T("3:)"), _T("L(\")"), _T("L3"), _T(":Z"), _T(":$"), _T(":0"), _T("::3"), _T(":4"),					// starting index = 24
+				_T(":-h"), _T(":60"), _T(":67"), _T(":6"), _T(":88"), _T(":8"), _T(":9"), _T(":12"), _T(":-?"), _T("(Y)"), _T(":54"),			// starting index = 33
+				_T(":56"), _T(":72"), _T("=((")};					// starting index = 44
+
+	static int emoCodeMapToIndex[EMO_MAX_NO] = {26, 0, 1, 2, 28, 3, 4, 5, 6, 7, 8 ,9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 29, 30, 31, 32, 33,
+				42, 43, 34, 45, 35, 36, 37, 38, 39, 40, 41, 44, 46};
+
 	for (int i=startIndex; i<str.GetLength()-1; i++) {
 		int j = 0;
 		// match each char with beginning charset
@@ -759,16 +795,16 @@ int CChatControl::FindEmoCode(int startIndex, CString str, int* foundEmoIndex) {
 			int k=0;
 			int emoLength = 0;
 			for (; k<nEmoCount; k++) {
-				emoLength = _tcslen(pEmoCodesList[k]);
+				emoLength = _tcslen(EmoCodeMap[k]);
 				// should have more or equal number of characters left
 				if (emoLength <= str.GetLength()-i) {
-					if (CString(pEmoCodesList[k]) == str.Mid(i, emoLength))
+					if (CString(EmoCodeMap[k]) == str.Mid(i, emoLength))
 						break;
 				}
 			}
 			// emo matched
 			if (k<nEmoCount) {
-				*foundEmoIndex = k;
+				*foundEmoIndex = emoCodeMapToIndex[k];
 				return i;
 			}
 

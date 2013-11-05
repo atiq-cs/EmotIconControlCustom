@@ -58,11 +58,11 @@ CTestEmoCustomControlDlg::CTestEmoCustomControlDlg(CWnd* pParent /*=NULL*/)
 		AfxThrowResourceException();
 	}
 
-	static TCHAR *EmoCodesTmp[EMO_MAX_NO] = {_T(":)"), _T(":("), _T(":D"), _T(":P"), _T(":S"), _T(":O"), _T(":@"), _T(":-["), _T(":-]"), _T(":|"),
-				_T(":'("), _T(":>"), _T(":3"), _T(":*"), _T(":V"), _T(":/"), _T(";)"), _T(">:("), _T(">:O"), _T("8)"), _T("8|"), _T("O.o"),
-				_T("O:)"), _T("3:)"), _T("L(\")"), _T("L3"), _T(":))"), _T(":Z"), _T(":POOP"), _T(":$"), _T(":0"), _T("::3"), _T(":4"),
-				_T(":-h"), _T(":6"), _T(":8"), _T(":9"), _T(":12"), _T(":-?"), _T("(Y)"), _T(":54"), _T(":56"), _T(":60"), _T(":67"),
-				_T(":72"), _T(":88"), _T("=((")};
+	static TCHAR *EmoCodesTmp[EMO_MAX_NO] = {_T(":)"), _T(":("), _T(":D"), _T(":P"), _T(":S"), _T(":O"), _T(":@"), _T(":-["), _T(":-]"), _T(":|"),		
+				_T(":'("), _T(":>"), _T(":3"), _T(":*"), _T(":V"), _T(":/"), _T(";)"), _T(">:("), _T(">:O"), _T("8)"), _T("8|"), _T("O.o"),				// starting index = 10
+				_T("O:)"), _T("3:)"), _T("L(\")"), _T("L3"), _T(":))"), _T(":Z"), _T(":POOP"), _T(":$"), _T(":0"), _T("::3"), _T(":4"),					// starting index = 22
+				_T(":-h"), _T(":6"), _T(":8"), _T(":9"), _T(":12"), _T(":-?"), _T("(Y)"), _T(":54"), _T(":56"), _T(":60"), _T(":67"),					// starting index = 33
+				_T(":72"), _T(":88"), _T("=((")};									// starting index = 44
 
 	static TCHAR *EmoToolTipTextTmp[EMO_MAX_NO] = {_T("Smile"), _T("Sad"), _T("Laugh"), _T("Cheeky"), _T("Worried"), _T("Surprised"), _T("Angry"), _T("Love"), _T("Vampire"), _T("Straight Face"),
 				_T("Cry"), _T("Blush"), _T("Curly Lips"), _T("Kiss"), _T("Pacman "), _T("Uncertain"), _T("Wink"), _T("Grumpy"), _T("Upset"), _T("Glass"), _T("Sunglass"), _T("Confused"),
