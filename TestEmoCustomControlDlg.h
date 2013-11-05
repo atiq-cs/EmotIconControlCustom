@@ -36,6 +36,8 @@ public:
 	// insert emot icons
 	void InsertEmoCode(int emoCodeIndex);
 	CString GetEmoToolTipText(int index);
+	TCHAR** GetEmoCodeList();
+	int GetEmoCount();
 
 // Dialog Data
 	enum { IDD = IDD_TESTEMOCUSTOMCONTROL_DIALOG };
@@ -65,3 +67,4 @@ public:
 //private:
 	//CToolTipCtrl* m_pTooltip;
 };
+

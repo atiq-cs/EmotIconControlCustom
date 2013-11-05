@@ -7,11 +7,12 @@
 
 #include "stdafx.h"
 #include "ChatControl.h"
+#include "TestEmoCustomControlDlg.h"	// for referene to this dialog
 //#include "ChatUIPainter.h"	// for custom drawing operation class
 //#include <math.h>		// for ceil
 
 // our contructor
-CChatControl::CChatControl(void):
+CChatControl::CChatControl(CTestEmoCustomControlDlg* pDlg):
 	nMaxScreen(0),
 	yItem(0),
 	nMaxScroll(0),
@@ -29,7 +30,9 @@ CChatControl::CChatControl(void):
 	dateText(TEXT("")),
 	headingText(TEXT("")),
 	cxChatText(0),
-	cxChatTextHSpace(2)
+	cxChatTextHSpace(2),
+	m_pMainDlg(pDlg),
+	pEmoCodesList(NULL)
 	// lastSBACtion(0)
 {
 	//Register our custom chat control class
@@ -194,7 +197,7 @@ void CChatControl::OnInitChatControl() {
 	// get height for font 2
 	pdc->SelectObject(&textFont);
     pdc->GetTextMetrics(&tm);
-	yCharChatText = tm.tmHeight + tm.tmExternalLeading+4;
+	yCharChatText = tm.tmHeight + tm.tmExternalLeading+10;
 
 	// get height for font 3
 	pdc->SelectObject(&timeFont);
@@ -643,14 +646,53 @@ int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType
 }
 
 // helper function for DrawElement
+// efficient implementation of emot icon code matching
 int CChatControl::DrawMessageEmo(CString message)
 {
 	if (message.IsEmpty())
 		return 0;
 
-	// CString itemText = m_currentChatItem.message;
-	CString emo = TEXT(":)");
+	if (pEmoCodesList == NULL) {
+		pEmoCodesList = m_pMainDlg->GetEmoCodeList();
+	}
 
+	// minimum length of emot icons = 2
+	// maximum length of emot icons = 3, one emo of length 5  :POOP
+	// starting charset of emot icons ":;>8O3L(="
+
+	CString token;
+	int YPre = ptStart.y;
+	enum TextEmoType {NONE, BITMAP, TEXTSTR};
+	TextEmoType PreviousItemType = NONE;
+	int startPos = 0;
+	int emoPos = 0;
+	int emoIndex = 0;
+	while ((emoPos = FindEmoCode(startPos, message, &emoIndex)) >= 0) {
+		// emo found, draw now
+		token = message.Mid(startPos, emoPos-startPos);
+		if (PreviousItemType == BITMAP)
+			ptStart.x += cxChatTextHSpace;
+		DrawChatText(token);
+		PreviousItemType = TEXTSTR;
+
+
+		// add vspace before and after emo, to solve spacing problem of text after emo
+		if (PreviousItemType == TEXTSTR)
+			ptStart.x += cxChatTextHSpace;
+		VirtualDrawEmotIcon(emoIndex);
+		startPos = emoPos + _tcslen(pEmoCodesList[emoIndex]);
+	}
+	if ( message.GetLength()-startPos > 0) {
+		token = message.Mid(startPos, message.GetLength()-startPos);			// ref: http://msdn.microsoft.com/en-us/library/aa300543(v=vs.60).aspx
+		if (PreviousItemType == BITMAP)
+			ptStart.x += cxChatTextHSpace;
+		DrawChatText(token);
+	}
+	// draw left over text
+	
+
+	/*CString emo = TEXT(":)");
+	
 	int n = message.Find(emo);		// ref: http://msdn.microsoft.com/en-us/library/aa300543(v=vs.60).aspx
 	int startPos = 0;
 	//CPoint ptStartDraw = ptStart;		// draw from this point
@@ -659,10 +701,6 @@ int CChatControl::DrawMessageEmo(CString message)
 	// ptEndDraw.x = ptStart.x + cxChatText;
 
 	// CRect limitRect(rcMsgClip);
-	CString token;
-	int YPre = ptStart.y;
-	enum TextEmoType {NONE, BITMAP, TEXTSTR};
-	TextEmoType PreviousItemType = NONE;
 
 	while (n != -1) {
 		// get substring before emo
@@ -694,10 +732,51 @@ int CChatControl::DrawMessageEmo(CString message)
 		if (PreviousItemType == BITMAP)
 			ptStart.x += cxChatTextHSpace;
 		DrawChatText(token);
-	}
+	}*/
 	return (ptStart.y - YPre + yCharChatText);		// add Single Line Height to move to next row
 }
 
+/*
+	Author		:		Saint Atique
+				:		returns -1 if not found
+*/
+int CChatControl::FindEmoCode(int startIndex, CString str, int* foundEmoIndex) {
+	TCHAR* startEmoChar = _T(":;>8O3L(=");
+	int nStartEmoChar = 9;
+	int nEmoCount = m_pMainDlg->GetEmoCount();
+
+	for (int i=startIndex; i<str.GetLength()-1; i++) {
+		int j = 0;
+		// match each char with beginning charset
+		for (;j<nStartEmoChar; j++)
+			if (str[i] == startEmoChar[j])
+				break;
+
+		// emo first char match
+		if (j < nStartEmoChar) {
+			// check for each emo match from current char position
+			// get length of emo
+			int k=0;
+			int emoLength = 0;
+			for (; k<nEmoCount; k++) {
+				emoLength = _tcslen(pEmoCodesList[k]);
+				// should have more or equal number of characters left
+				if (emoLength <= str.GetLength()-i) {
+					if (CString(pEmoCodesList[k]) == str.Mid(i, emoLength))
+						break;
+				}
+			}
+			// emo matched
+			if (k<nEmoCount) {
+				*foundEmoIndex = k;
+				return i;
+			}
+
+		}
+	}
+	*foundEmoIndex = -1;
+	return -1;
+}
 
 // DrawChatText independent function
 // output: output is sent via CPoint* pointer to modify to next starting point of drawing
@@ -740,7 +819,7 @@ void CChatControl::DrawChatText(CString str)
 // This handler loads a bitmap from system resources, 
 // centers it in the view, and uses BitBlt() to paint the bitmap 
 // bits. 
-void CChatControl::VirtualDrawEmotIcon()
+void CChatControl::VirtualDrawEmotIcon(int index)
 {
 	/*// load IDB_BMP_SMILE01 from our resources
 	CBitmap bmp;
@@ -772,7 +851,7 @@ void CChatControl::VirtualDrawEmotIcon()
 				return ;
 			}*/
 		}
-		CHATBOX_ELEMENT tmp = { ElemEmotIconType, TEXT(":)"), ptStart, cch, 0 };
+		CHATBOX_ELEMENT tmp = { ElemEmotIconType, TEXT(":)"), ptStart, cch, index };
 		chatUIElements.AddTail(tmp);
 
 		/* if we want image scaling, ref: 
@@ -911,7 +990,7 @@ void CChatControl::PaintUIElements() {
 	// save previous color
 	COLORREF oldColor = pDC->GetTextColor();
 
-		// To detect new line
+	// To detect new line
 	int preY=ptStart.y;		// dummy initialization ptStart.y might not be necessary
 
 	POSITION pos = chatUIElements.GetHeadPosition();
@@ -961,31 +1040,20 @@ void CChatControl::PaintUIElements() {
 				break;
 			}
 
-			pDC->SetTextColor(RGB(11,136,99));		// ref: http://msdn.microsoft.com/en-us/library/vstudio/wf4k5sew.aspx
-			/*// set background color
-			COLORREF oldBkColor;
-			if (isAlternate==false) {
-				oldBkColor = pDC->SetBkColor(RGB(170,194,154));
-			}*/
+			if (isAlternate)
+				pDC->SetTextColor(RGB(136,97,11));
+			else
+				pDC->SetTextColor(RGB(11,136,99));		// ref: http://msdn.microsoft.com/en-us/library/vstudio/wf4k5sew.aspx
+			// we are remoing backgroud color for name
 			// set name heading font
 			if (pOldFont == NULL)
 				pOldFont = pDC->SelectObject(&headingFont);
 			else
 				pDC->SelectObject(&headingFont);
 
-			if (isAlternate) {
-				pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.text);
-			}
-			else {
-				COLORREF oldBkColor = pDC->SetBkColor(RGB(170,194,154));
-				pDC->ExtTextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, ETO_OPAQUE, CRect(curChatElement.ptStart.x, curChatElement.ptStart.y, ptEnd.x+timeWidth, curChatElement.ptStart.y+yCharHeading), curChatElement.text, NULL);
-				pDC->SetBkColor(oldBkColor);
-			}
+			pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.text);
 
 			pDC->SetTextColor(oldColor);
-			/*if (isAlternate==false) {
-				pDC->SetBkColor(oldBkColor);
-			}*/
 			drawStarted = true;
 			if (isAlternate)
 				isAlternate = false;
@@ -1000,26 +1068,13 @@ void CChatControl::PaintUIElements() {
 					isInsideRect = false;
 				break;
 			}
-			COLORREF oldBkColor;
-			if (isAlternate) {
-				oldBkColor = pDC->SetBkColor(RGB(170,194,154));
-			}
 			// set chat text font
 			if (pOldFont == NULL)
 				pOldFont = pDC->SelectObject(&textFont);
 			else
 				pDC->SelectObject(&textFont);
 
-			// if in same line
-			if (preY == curChatElement.ptStart.y)
-				pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.text);
-			else {  // if new line
-				pDC->ExtTextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, ETO_OPAQUE, CRect(curChatElement.ptStart.x, curChatElement.ptStart.y, ptEnd.x+timeWidth, curChatElement.ptStart.y+yCharChatText), curChatElement.text, NULL);
-				preY = curChatElement.ptStart.x;
-			}
-			if (isAlternate) {
-				pDC->SetBkColor(oldBkColor);
-			}
+			pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.text);
 			drawStarted = true;
 			break;
 		}
@@ -1046,7 +1101,7 @@ void CChatControl::PaintUIElements() {
 			}
 			*/
 			//if (bmp.Attach(pngImage.Detach()))// ref: http://msdn.microsoft.com/en-us/library/97h2k0zx.aspx 
-			if (bmp.LoadBitmap(IDB_BMP_EMOTICON_01))			
+			if (bmp.LoadBitmap(IDB_BMP_EMOTICON_01+curChatElement.recordIndex))			
 			{
 				// COLORREF oldBkColor = pDC->SetBkColor(TRANSPARENT);
 				// Create an in-memory DC compatible with the display DC we're using to paint
@@ -1084,13 +1139,7 @@ void CChatControl::PaintUIElements() {
 
 			// set text align
 			UINT oldTextAlignment = pDC->SetTextAlign(TA_RIGHT);
-			if (isAlternate) {
-				COLORREF oldBkColor = pDC->SetBkColor(RGB(170,194,154));
-				pDC->ExtTextOut(ptEnd.x+timeWidth, curChatElement.ptStart.y, ETO_OPAQUE, CRect(ptEnd.x+timeWidth, curChatElement.ptStart.y, ptEnd.x, curChatElement.ptStart.y+yCharChatText), curChatElement.text, NULL);
-				pDC->SetBkColor(oldBkColor);
-			}
-			else
-				pDC->TextOut(ptEnd.x+timeWidth, curChatElement.ptStart.y, curChatElement.text);
+			pDC->TextOut(ptEnd.x+timeWidth, curChatElement.ptStart.y, curChatElement.text);
 			pDC->SetTextAlign(oldTextAlignment);
 			drawStarted = true;
 			break;
