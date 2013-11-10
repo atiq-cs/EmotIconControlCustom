@@ -278,5 +278,17 @@
     <Image Include="res\bmps\EI18_glass.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\deliv\im_fail.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\deliv\im_pending.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\deliv\im_sending.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\deliv\im_sent.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
