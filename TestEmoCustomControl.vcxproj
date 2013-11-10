@@ -190,6 +190,10 @@
     <Image Include="res\bmps\EI48_broken_heart.bmp" />
     <Image Include="res\cry.png" />
     <Image Include="res\cry_15px.png" />
+    <Image Include="res\deliv\im_fail.bmp" />
+    <Image Include="res\deliv\im_pending.bmp" />
+    <Image Include="res\deliv\im_sending.bmp" />
+    <Image Include="res\deliv\im_sent.bmp" />
     <Image Include="res\emo01_smile.png" />
     <Image Include="res\emoPopD.bmp" />
     <Image Include="res\emoPopF.bmp" />

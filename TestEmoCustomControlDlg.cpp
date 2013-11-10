@@ -99,6 +99,7 @@ BEGIN_MESSAGE_MAP(CTestEmoCustomControlDlg, CDialog)
 	ON_BN_CLICKED(IDC_EMOPOP, &CTestEmoCustomControlDlg::OnBnClickedEmoPop)
 	ON_WM_SETFOCUS()
 	ON_WM_ACTIVATE()
+	ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
 
@@ -158,7 +159,6 @@ BOOL CTestEmoCustomControlDlg::OnInitDialog()
 	// ref:http://msdn.microsoft.com/en-us/library/7tabdbhs(v=vs.110).aspx 
 	m_pTooltip->Activate(TRUE);
 	*/
-
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -314,7 +314,6 @@ void CTestEmoCustomControlDlg::OnBnClickedEmoPop()
 		delete m_emoListPopUpDlg;
 		m_emoListPopUpDlg = NULL;
 	}*/
-
 }
 
 
@@ -378,4 +377,14 @@ TCHAR** CTestEmoCustomControlDlg::GetEmoCodeList() {
 // Purpose of this function is to return array of emo code
 int CTestEmoCustomControlDlg::GetEmoCount() {
 	return EMO_MAX_NO;
+}
+
+
+BOOL CTestEmoCustomControlDlg::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	// TODO: Add your message handler code here and/or call default
+	//AfxMessageBox(_T("we are on mouse wheel parent"));
+	// have to handle it after implementing message delivery status display implementation
+
+	return CDialog::OnMouseWheel(nFlags, zDelta, pt);
 }

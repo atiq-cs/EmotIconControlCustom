@@ -13,14 +13,14 @@
 
 class CTestEmoCustomControlDlg;
 // sent status updates
-enum MESSAGE_SEND_STATUS { Sent, Pending, Delivered };
+enum MESSAGE_SEND_STATUS { Trying, Pending, Delivered, Failed };
 
 // item field type, type for members of chat items
 // we could reuse CHATBOX_ELEMENT_TYPE for CChatUIPainter but we may need our own in future if there is structural change to the declation of CHATBOX_ELEMENT
-enum CHATBOX_FIELD_TYPE { FieldDateType, FieldNameType, FieldMessageType, FieldTimeType };
+enum CHATBOX_FIELD_TYPE { FieldDateType, FieldNameType, FieldMessageType, FieldTimeType/*, FieldDeliveryStatusType*/ };
 
 // element type
-enum CHATBOX_ELEMENT_TYPE { ElemDateType, ElemNameType, ElemMessageType, ElemEmotIconType, ElemTimeType };
+enum CHATBOX_ELEMENT_TYPE { ElemDateType, ElemNameType, ElemMessageType, ElemEmotIconType, ElemTimeType, ElemDeliveryStatusType };
 
 // Replace vector when random access is required or we encounter a problem with CList which deduces CList as buggy
 // structure for maintaining chat items
@@ -77,7 +77,7 @@ private:
 	//int startUIElemIndex;
 	//int endUIElemIndex;
 	
-	int cxChatText;		// defines x from where time will be painted from
+	int cxChatText;		// defines where message text ends and x from where time will be painted from
 	int cxChatTextHSpace;
 
 	CFont dateFont;
@@ -94,7 +94,9 @@ private:
 
 	// CSize m_clientSize;
 	int timeWidth;
+	int deliveryStatusWidth;
 	bool scrollbarEnabled;
+	int scrollbarWidth;
 	// int lastSBACtion;
 	// CHATBOX_SHARED_DATA lastPaintElement;
 
@@ -133,6 +135,7 @@ private:
 	void PaintElements();
 	BOOL RegisterWndClass();
 	int FindEmoCode(int startIndex, CString str, int* foundEmoIndex);
+	int AddPaintElement(MESSAGE_SEND_STATUS status);
 
 public:
 	CChatControl(CTestEmoCustomControlDlg* pDlg);
@@ -153,7 +156,9 @@ protected:
 	virtual void PreSubclassWindow();
 	// afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-};
+public:
+	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
+	};
 
 // Other functions which are good without sharing data from the class
 bool IsPointInsideClipRectangle(const CPoint topLeft, const CPoint bottomRight, const CPoint point);
