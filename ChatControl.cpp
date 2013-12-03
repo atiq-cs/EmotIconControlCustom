@@ -35,6 +35,7 @@ CChatControl::CChatControl(CTestEmoCustomControlDlg* pDlg):
 	cxChatTextHSpace(2),
 	m_pMainDlg(pDlg),
 	pEmoCodesList(NULL)
+	// isAlternateNameColor(false)
 	// lastSBACtion(0)
 {
 	//Register our custom chat control class
@@ -122,7 +123,6 @@ BEGIN_MESSAGE_MAP(CChatControl, CWnd)
 		ON_WM_MOUSEHWHEEL()
 END_MESSAGE_MAP()
 
-
 /*
 OnCreate is not reached as WM_CREATE message is suppressed
 int CChatControl::OnCreate(LPCREATESTRUCT lpCreateStruct) 
@@ -191,12 +191,12 @@ void CChatControl::OnInitChatControl() {
     pdc->GetTextMetrics(&tm);
     // xChar = tm.tmAveCharWidth; 
     // xUpper = (tm.tmPitchAndFamily & 1 ? 3 : 2) * xChar/2; 
-	yCharDate = tm.tmHeight + tm.tmExternalLeading+4;
+	yCharDate = tm.tmHeight + tm.tmExternalLeading + 4;
 	cyScrollUnit = yCharDate;
 	// get height for font 1
 	pdc->SelectObject(&headingFont);
-    pdc->GetTextMetrics(&tm); 
-	yCharHeading = tm.tmHeight + tm.tmExternalLeading+4;
+    pdc->GetTextMetrics(&tm);
+	yCharHeading = tm.tmHeight + tm.tmExternalLeading + 4;
  
 	// get height for font 2
 	pdc->SelectObject(&textFont);
@@ -227,13 +227,11 @@ void CChatControl::OnInitChatControl() {
 	 The EnableScrollBar function can be used to disable one or both arrows of a scroll bar. An application displays disabled arrows in gray and does not respond to user input. */
 	// no lines in drawn in control initially, nothing to scroll
 	SetScrollRange(SB_VERT, 0, 0, FALSE);
-
 	
 	//CTime timeDate = CTime::GetCurrentTime();
 	//PostChatMessage(_T("lots of text"), timeDate);
 	//m_chatBoxCtrl.SetWindowText(_T(""));
 	//GotoDlgCtrl(&m_chatBoxCtrl);		// ref: http://blogs.msdn.com/b/oldnewthing/archive/2004/08/02/205624.aspx
-
 }
 
 // Paint to draw the chat box
@@ -242,7 +240,7 @@ void CChatControl::OnInitChatControl() {
 void CChatControl::OnPaint() {
 	// avoid paint when record is inserted
 	if (chatUIElements.GetCount() == 0) {
-		// Dummy code to unblock tool-tip
+		// Dummy code to unblock tool-tip for all controls in the dialog
 		PAINTSTRUCT ps;
 		pDC = BeginPaint(&ps);
 		pDC->TextOut(0, 0, _T(" "));
@@ -271,7 +269,6 @@ void CChatControl::OnPaint() {
 	*/
 	// updated in PostchatMessage, no need to update on each paint
 	// cxChatText = rcClip.Width() -  timeWidth;		// for field type Time use this instead
-
 
 	// CChatUIPainter m_clsUIPainter(pDC, chatUIElements,  yScrollAmount, timeWidth, lastPaintElement);
 	//m_clsUIPainter.SetFonts(m_fontArray, m_fontHeight);
@@ -377,7 +374,6 @@ void CChatControl::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		scrollY += cyScrollUnit * (yPos-CurPos);
 		yScrollAmount -= scrollY;
 		ScrollWindow(0, scrollY);
-
 
 		/*{
 			//yScrollAmount = 0;
@@ -536,6 +532,7 @@ int CChatControl::AddChatItemToPaintElements(CHATBOX_ITEM& chatItem) {
     pDC = GetDC();
 
 	// get clip rectangle and save as points
+	// this causes trouble for minimize
 	CRect rcClip;
 	pDC->GetClipBox(&rcClip);
 	ptClipStart = rcClip.TopLeft();		// draw from this point
@@ -677,7 +674,6 @@ int CChatControl::DrawMessageEmo(CString message)
 	if (pEmoCodesList == NULL) {
 		pEmoCodesList = m_pMainDlg->GetEmoCodeList();
 	}
-
 
 	// minimum length of emot icons = 2
 	// maximum length of emot icons = 3, one emo of length 5  :POOP
@@ -1049,13 +1045,14 @@ void CChatControl::PaintUIElements() {
 	COLORREF oldColor = pDC->GetTextColor();
 
 	// To detect new line
-	int preY=ptStart.y;		// dummy initialization ptStart.y might not be necessary
+	//int preY=ptStart.y;		// dummy initialization ptStart.y might not be necessary
 
 	POSITION pos = chatUIElements.GetHeadPosition();
 	bool drawStarted = false;
 	bool isInsideRect = true;
-	bool isAlternate = false;
+	bool isAlternateNameColor = false;
 	bool rowDrawComplete = false;
+
 	// ** implement drawing according to co-ordinates of update region
 	//  && endUIElemIndex == -1; ) && (i<endUIElemIndex+1)
 	for (int i=0; i < chatUIElements.GetCount() && rowDrawComplete==false; i++)
@@ -1093,15 +1090,23 @@ void CChatControl::PaintUIElements() {
 		}
 		case ElemNameType:
 		{	
+			if (isAlternateNameColor) {
+				isAlternateNameColor = false;
+			}
+			else {
+				isAlternateNameColor = true;
+			}
 			if (IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart+curChatElement.size) == false) {
 				if (drawStarted)
 					isInsideRect = false;
 				break;
 			}
-			if (isAlternate)
+
+			if (isAlternateNameColor)
 				pDC->SetTextColor(RGB(136,97,11));
 			else
 				pDC->SetTextColor(RGB(11,136,99));		// ref: http://msdn.microsoft.com/en-us/library/vstudio/wf4k5sew.aspx
+
 			// we are remoing backgroud color for name
 			// set name heading font
 			if (pOldFont == NULL)
@@ -1113,10 +1118,6 @@ void CChatControl::PaintUIElements() {
 
 			pDC->SetTextColor(oldColor);
 			drawStarted = true;
-			if (isAlternate)
-				isAlternate = false;
-			else
-				isAlternate = true;
 			break;
 		}
 		case ElemMessageType:
@@ -1220,7 +1221,7 @@ void CChatControl::PaintUIElements() {
 				if (isAlternate) {
 					oldBkColor = pDC->SetBkColor(RGB(170,194,154));
 				}*/
-				CDC dcMemory;
+				CDC dcMemory; 
 				dcMemory.CreateCompatibleDC(pDC);
 				// Select the bitmap into the in-memory DC
 				CBitmap* pOldBitmap = dcMemory.SelectObject(&bmp);
@@ -1263,4 +1264,10 @@ void CChatControl::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 	// TODO: Add your message handler code here and/or call default
 	AfxMessageBox(_T("we are on mouse wheel child"));
 	CWnd::OnMouseHWheel(nFlags, zDelta, pt);
+}
+
+// in case user resizes the window, fix page size
+void CChatControl::Repaint()
+{
+	Invalidate();
 }

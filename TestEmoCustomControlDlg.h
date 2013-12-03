@@ -26,7 +26,8 @@ private:
 	TCHAR *EmoCodes[EMO_MAX_NO];
 	TCHAR *EmoToolTipText[EMO_MAX_NO];
 	// Tool-tip
-
+	// minimize
+	// bool isMinimized;
 
 // Construction
 public:

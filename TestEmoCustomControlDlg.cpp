@@ -49,6 +49,7 @@ CTestEmoCustomControlDlg::CTestEmoCustomControlDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CTestEmoCustomControlDlg::IDD, pParent),
 	m_emoListPopUpDlg(NULL),
 	m_ChatEmoBox(this)
+	// isMinimized(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	if (! emoPopUpBmp.LoadBitmaps(_T("IDB_BMP_EMOPOP_UP"), _T("IDB_BMP_EMOPOP_DOWN"), _T("IDB_BMP_EMOPOP_FOCUS"), _T("IDB_BMP_EMOPOP_UP"))) {
@@ -74,7 +75,6 @@ CTestEmoCustomControlDlg::CTestEmoCustomControlDlg(CWnd* pParent /*=NULL*/)
 		EmoCodes[i] = EmoCodesTmp[i];
 		EmoToolTipText[i] = EmoToolTipTextTmp[i];
 	}
-	
 }
 
 CTestEmoCustomControlDlg::~CTestEmoCustomControlDlg() {
@@ -94,12 +94,12 @@ BEGIN_MESSAGE_MAP(CTestEmoCustomControlDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &CTestEmoCustomControlDlg::OnBnClickedOk)
-	ON_WM_SIZE()
+	//ON_WM_SIZE()
 	ON_WM_GETMINMAXINFO()
 	ON_BN_CLICKED(IDC_EMOPOP, &CTestEmoCustomControlDlg::OnBnClickedEmoPop)
 	ON_WM_SETFOCUS()
 	ON_WM_ACTIVATE()
-	ON_WM_MOUSEWHEEL()
+	//ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
 
@@ -225,6 +225,8 @@ void CTestEmoCustomControlDlg::OnBnClickedOk()
 	if (m_chInText.GetLength() > 0) {
 		// primarily important operation here is to sent the text and print
 		CTime timeDate = CTime::GetCurrentTime();
+		CTimeSpan tz(0, 6, 0, 0);	// for timezone
+		timeDate += tz;
 		m_ChatEmoBox.PostChatMessage(m_chInText, timeDate);
 		//m_emoListControl.InsertItemEmo(n, m_chInText);
 		//ATLASSERT(s == _T("Friday, March 19, 1999"));   
@@ -237,11 +239,21 @@ void CTestEmoCustomControlDlg::OnBnClickedOk()
 	// CDialog::OnOK();
 }
 
-
+/* Bug fix 1: Minimize bug
+ *  OnSize here changes the co-ordinates and dimenstions of our custom chat control
+ *  changed width affect rcClip that is calculated during AddChatItemToPaintElements
+ *	therefore dimensions are overlapped those paint elements and doesn't get drawn correctly
+ */
 void CTestEmoCustomControlDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
-
+	// invalidate if minimized to fix bug, it didn't fix the bug; let's try more
+	/*if (nType == SIZE_MINIMIZED)			// ref: http://msdn.microsoft.com/en-us/library/windows/desktop/ms632646(v=vs.85).aspx
+	{	//m_ChatEmoBox.Repaint();
+		isMinimized = true;
+	}*/
+	if (cx==0 && cy==0)
+		return;
 	/*CRect rc;
 	GetWindowRect(&rc);
 	ClientToScreen(rc);
@@ -263,19 +275,24 @@ void CTestEmoCustomControlDlg::OnSize(UINT nType, int cx, int cy)
 		int cxEmoBox = cx * 13 / 15;
 		int cyEmoBox = cy * 343 / 600 - 21 / 2;
 		m_ChatEmoBox.MoveWindow (xEmoBox, yEmoBox, cxEmoBox, cyEmoBox);
+
+		/*if (nType == SIZE_RESTORED) {
+			m_ChatEmoBox.Repaint();
+			isMinimized = false;
+		}*/
    }
 
-	//CEdit *chatBoxEditCtrl = (CEdit *) GetDlgItem(IDC_EDIT_CHAT_IN);
-	//if (chatBoxEditCtrl == NULL)
-		//return;
-   /*if (::IsWindow(m_chatBoxEditCtrl.GetSafeHwnd()))
+	CEdit *chatBoxEditCtrl = (CEdit *) GetDlgItem(IDC_EDIT_CHAT_IN);
+	if (chatBoxEditCtrl == NULL)
+		return;
+    if (::IsWindow(m_chatBoxEditCtrl.GetSafeHwnd()))
 	{
 		int xEditBox = cx/15;
 		int yEditBox = cy * 413 / 600 - 21 / 2;
 		int cxEditBox = cx * 13 / 15;
 		int cyEditBox = cy * 49 / 200 - 21 / 2;
 		m_chatBoxEditCtrl.MoveWindow (xEditBox, yEditBox, cxEditBox, cyEditBox);
-	}*/
+	}
 
    CButton *buttonCtl = (CButton *) GetDlgItem(IDOK);
 	if (buttonCtl == NULL)
@@ -337,6 +354,7 @@ void CTestEmoCustomControlDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMi
 		// m_emoListPopUpDlg->ShowWindow(SW_HIDE);
 				//AfxMessageBox(_T("we are here"));
 		DestroyEmoPopUpDlg();
+		GotoDlgCtrl(&m_ChatEmoBox);
 	}
 }
 
