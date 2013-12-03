@@ -10,7 +10,6 @@
 #include "resource.h"		// for IDC_CHATCUSTOM
 #define CUSTOMWNDCLASS TEXT("CChatControl")
 
-
 class CTestEmoCustomControlDlg;
 // sent status updates
 enum MESSAGE_SEND_STATUS { Trying, Pending, Delivered, Failed };
@@ -114,6 +113,7 @@ private:
 	CString dateText;
 	CTestEmoCustomControlDlg* m_pMainDlg;
 	TCHAR **pEmoCodesList;
+	// bool isAlternateNameColor;
 
 	// Private functions
 	void OnInitChatControl();
@@ -145,8 +145,7 @@ public:
 	// not necessary
 	//virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	void PostChatMessage(CString chat_message, CTime timedate);
-
-
+	void Repaint();
 	// Implementation
 protected:
 	//afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct) ;
@@ -156,9 +155,8 @@ protected:
 	virtual void PreSubclassWindow();
 	// afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-public:
 	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
-	};
+};
 
 // Other functions which are good without sharing data from the class
 bool IsPointInsideClipRectangle(const CPoint topLeft, const CPoint bottomRight, const CPoint point);
