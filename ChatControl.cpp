@@ -421,7 +421,6 @@ void CChatControl::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 void CChatControl::PostChatMessage(CString chat_message, CTime timedate) {
 	CHATBOX_ITEM m_currentChatItem = {};
 	m_currentChatItem.message = chat_message;
-	m_currentChatItem.time = timedate.Format(_T("%I:%M:%S %p"));	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
 	//m_currentChatItem.date = timedate.Format(_T("%B %d, %Y"));
 	m_currentChatItem.date = TEXT("TODAY");
 
@@ -431,7 +430,40 @@ void CChatControl::PostChatMessage(CString chat_message, CTime timedate) {
 	* ref: http://msdn.microsoft.com/en-us/library/aa272875(v=VS.60).aspx
     */
     srand( (unsigned)time( NULL ) );
-	m_currentChatItem.user_name = ((int) rand()) % 2? TEXT("Client 01") : TEXT("Client 02");
+	bool isRecievedFromNetwork = (bool) (((int) rand()) % 2);
+	if (isRecievedFromNetwork) {
+		m_currentChatItem.user_name = TEXT("Client 01");
+		m_currentChatItem.time = timedate.Format(_T("%I:%M:%S %p"));	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
+	}
+	else {
+		m_currentChatItem.user_name = TEXT("Client 02");
+
+		// Convert the time to GMT/UTC
+		CTimeSpan tz(0, 6, 0, 0);	// for timezone
+		timedate -= tz;
+
+		// convert time to local now; ref: http://support.microsoft.com/kb/245786
+		FILETIME FileTime, LocalFileTime;
+		SYSTEMTIME UTCTime, LocalTime;
+		timedate.GetAsSystemTime(UTCTime);	// ref: http://msdn.microsoft.com/en-US/library/hcc89tce(v=vs.110).aspx
+		SystemTimeToFileTime(&UTCTime,&FileTime);
+		FileTimeToLocalFileTime(&FileTime, &LocalFileTime);
+		FileTimeToSystemTime(&LocalFileTime, &LocalTime);
+		timedate = CTime(LocalTime);
+
+		// to simulate out of order timestamp
+		int randOffset = ((int) rand()) % 3600;
+		int minOffest = randOffset / 60;
+		int secOffset = randOffset % 60;
+		CTimeSpan tzRev(0, 0, minOffest, secOffset);	// for timezone
+		timedate -= tzRev;
+
+		//  
+
+		// randomize time, expect time as gmt as well
+		m_currentChatItem.time = timedate.Format(_T("%I:%M:%S %p"));	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
+	}
+
 	m_currentChatItem.send_status = Trying;
 	// Do preparsing here, for example, detecting all emot icons here so that it saves time for onPaint
 	chatRecords.AddTail(m_currentChatItem);
@@ -495,6 +527,7 @@ void CChatControl::PostChatMessage(CString chat_message, CTime timedate) {
 			si.fMask  = SIF_PAGE | SIF_RANGE;
 			nMaxScroll = (yItem - yClient) % cyScrollUnit?(yItem - yClient) / cyScrollUnit+1:(yItem - yClient) / cyScrollUnit;
 		}
+
 		si.nMin = 0;
 		nMaxLines = nMaxScreen+nMaxScroll;
 		si.nMax = nMaxLines-1;
