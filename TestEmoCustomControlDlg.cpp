@@ -212,7 +212,6 @@ HCURSOR CTestEmoCustomControlDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
 void CTestEmoCustomControlDlg::OnBnClickedOk()
 {
 	CString m_chInText;		// chat input text
@@ -225,8 +224,8 @@ void CTestEmoCustomControlDlg::OnBnClickedOk()
 	if (m_chInText.GetLength() > 0) {
 		// primarily important operation here is to sent the text and print
 		CTime timeDate = CTime::GetCurrentTime();
-		CTimeSpan tz(0, 6, 0, 0);	// for timezone
-		timeDate += tz;
+		// CTimeSpan tz(0, 6, 0, 0);	// for timezone
+		// timeDate += tz;
 		m_ChatEmoBox.PostChatMessage(m_chInText, timeDate);
 		//m_emoListControl.InsertItemEmo(n, m_chInText);
 		//ATLASSERT(s == _T("Friday, March 19, 1999"));   
