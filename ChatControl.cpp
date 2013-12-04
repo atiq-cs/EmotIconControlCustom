@@ -239,7 +239,7 @@ void CChatControl::OnInitChatControl() {
 // 1. has to set transparent
 void CChatControl::OnPaint() {
 	// avoid paint when record is inserted
-	if (chatUIElements.GetCount() == 0) {
+	if (chatUIElements.empty()) {
 		// Dummy code to unblock tool-tip for all controls in the dialog
 		PAINTSTRUCT ps;
 		pDC = BeginPaint(&ps);
@@ -414,15 +414,16 @@ void CChatControl::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	CWnd::OnVScroll(nSBCode, nPos, pScrollBar);
 }
 
+#include <algorithm> // for lower_bound
 
 // post chat message to display on custom chat box
 // this function has the responsibility to set everything up
 // so that next OnPaint can easily draw elements and scrollbar with appropriate positions
-void CChatControl::PostChatMessage(CString chat_message, CTime timedate) {
+void CChatControl::PostChatMessage(CString chat_message, CTime time_date) {
 	CHATBOX_ITEM m_currentChatItem = {};
 	m_currentChatItem.message = chat_message;
-	//m_currentChatItem.date = timedate.Format(_T("%B %d, %Y"));
-	m_currentChatItem.date = TEXT("TODAY");
+	// m_currentChatItem.date = TEXT("TODAY");
+	// m_currentChatItem.timedate = TEXT("TODAY");
 
 	// Set a random user name
 	/* Seed the random-number generator with current time so that
@@ -433,42 +434,46 @@ void CChatControl::PostChatMessage(CString chat_message, CTime timedate) {
 	bool isRecievedFromNetwork = (bool) (((int) rand()) % 2);
 	if (isRecievedFromNetwork) {
 		m_currentChatItem.user_name = TEXT("Client 01");
-		m_currentChatItem.time = timedate.Format(_T("%I:%M:%S %p"));	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
 	}
 	else {
 		m_currentChatItem.user_name = TEXT("Client 02");
 
 		// Convert the time to GMT/UTC
 		CTimeSpan tz(0, 6, 0, 0);	// for timezone
-		timedate -= tz;
+		time_date -= tz;
 
 		// convert time to local now; ref: http://support.microsoft.com/kb/245786
 		FILETIME FileTime, LocalFileTime;
 		SYSTEMTIME UTCTime, LocalTime;
-		timedate.GetAsSystemTime(UTCTime);	// ref: http://msdn.microsoft.com/en-US/library/hcc89tce(v=vs.110).aspx
+		time_date.GetAsSystemTime(UTCTime);	// ref: http://msdn.microsoft.com/en-US/library/hcc89tce(v=vs.110).aspx
 		SystemTimeToFileTime(&UTCTime,&FileTime);
 		FileTimeToLocalFileTime(&FileTime, &LocalFileTime);
 		FileTimeToSystemTime(&LocalFileTime, &LocalTime);
-		timedate = CTime(LocalTime);
+		time_date = CTime(LocalTime);
 
 		// to simulate out of order timestamp
+		// randomize time, expect time as gmt as well
 		int randOffset = ((int) rand()) % 3600;
 		int minOffest = randOffset / 60;
 		int secOffset = randOffset % 60;
 		CTimeSpan tzRev(0, 0, minOffest, secOffset);	// for timezone
-		timedate -= tzRev;
+		time_date -= tzRev;
 
-		//  
-
-		// randomize time, expect time as gmt as well
-		m_currentChatItem.time = timedate.Format(_T("%I:%M:%S %p"));	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
 	}
+	m_currentChatItem.timedate = time_date;
 
 	m_currentChatItem.send_status = Trying;
+
+	// chatRecords.push_back(m_currentChatItem);
+	ChatItemSorter chatItemComparator;
+	std::vector<CHATBOX_ITEM>::iterator it = std::lower_bound( chatRecords.begin(), chatRecords.end(), m_currentChatItem, chatItemComparator); // find proper position in descending order
+	int recordIndex = it - chatRecords.begin(); // ref: http://stackoverflow.com/questions/2152986/best-way-to-get-the-index-of-an-iterator
+	chatRecords.insert( it, m_currentChatItem ); // insert before iterator it
+
+
 	// Do preparsing here, for example, detecting all emot icons here so that it saves time for onPaint
-	chatRecords.AddTail(m_currentChatItem);
 	// add the chat item as UI Elements
-	int yItemDiff = AddChatItemToPaintElements(m_currentChatItem);
+	int yItemDiff = AddChatItemToPaintElements(m_currentChatItem, recordIndex);
 
 	// pre-calculation
 	// get max number of lines fittable in client rect
@@ -557,7 +562,7 @@ void CChatControl::PostChatMessage(CString chat_message, CTime timedate) {
 
 // Update elements for UI
 // Each raw element can be output to the display using single textout or drawbitmap call
-int CChatControl::AddChatItemToPaintElements(CHATBOX_ITEM& chatItem) {
+int CChatControl::AddChatItemToPaintElements(CHATBOX_ITEM& chatItem, int recordIndex) {
 	// pDC must be null for continueing
 	if (pDC)
 		return 0;
@@ -579,12 +584,12 @@ int CChatControl::AddChatItemToPaintElements(CHATBOX_ITEM& chatItem) {
 	cxChatText = ptEnd.x - ptClipStart.x;		// for field type Time use this instead
 
 	int preYItem = yItem;
-	yItem += AddPaintElement(chatItem.date, FieldDateType);
-	yItem += AddPaintElement(chatItem.user_name, FieldNameType);
+	yItem += AddPaintElement(chatItem.timedate.Format(_T("%B %d, %Y")), FieldDateType, recordIndex); 	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
+	yItem += AddPaintElement(chatItem.user_name, FieldNameType, recordIndex);
 	// will add 0 anyway, but this y Offset will be added by AddPaintElement for FieldTimeType
-	yItem += AddPaintElement(chatItem.message, FieldMessageType);
-	yItem += AddPaintElement(chatItem.send_status);
-	yItem += AddPaintElement(chatItem.time, FieldTimeType);
+	yItem += AddPaintElement(chatItem.message, FieldMessageType, recordIndex);
+	yItem += AddPaintElement(chatItem.send_status, recordIndex);
+	yItem += AddPaintElement(chatItem.timedate.Format(_T("%I:%M:%S %p")), FieldTimeType, recordIndex);	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
 
     // Free the device context. 
     ReleaseDC(pDC);
@@ -594,7 +599,7 @@ int CChatControl::AddChatItemToPaintElements(CHATBOX_ITEM& chatItem) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // UI Paint functions start
-int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType) {
+int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType, int recordIndex) {
 	// logic derived from drawElement
 	switch(strType) {
 	case FieldDateType:
@@ -616,8 +621,8 @@ int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType
 
 			// add vertical space between chat items when headingText is different
 			dateText = gStr;
-			CHATBOX_ELEMENT tmp = { ElemDateType, dateText, ptStart, size };
-			chatUIElements.AddTail(tmp);
+			CHATBOX_ELEMENT tmp = { ElemDateType, dateText, ptStart, size, recordIndex };
+			chatUIElements.push_back(tmp);
 			ptStart.y += yCharDate;
 		}
 		return (ptStart.y-preY);
@@ -642,7 +647,7 @@ int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType
 			// add vertical space between chat items when headingText is different
 			headingText = gStr;
 			CHATBOX_ELEMENT tmp = { ElemNameType, headingText, ptStart, size };
-			chatUIElements.AddTail(tmp);
+			chatUIElements.push_back(tmp);
 			ptStart.y += yCharHeading;
 		}
 		return (ptStart.y-preY);
@@ -657,7 +662,7 @@ int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType
 		// clip width is lessed by date time clip
 		// use variable cyChatItem to store the height, have to add after drawing date time
 		// DrawMessageEmo does/should not touch draw ending point, it should work with a copy of ptEnd
-		cyChatItem = DrawMessageEmo(gStr);
+		cyChatItem = DrawMessageEmo(gStr, recordIndex);
 		ptStart = oldPoint;
 		return cyChatItem;
 	}
@@ -675,7 +680,7 @@ int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType
 		// let' see we have 
 		CPoint ptTime = CPoint(cxChatText, ptStart.y);
 		CHATBOX_ELEMENT tmp = { ElemTimeType, gStr,  ptTime, size };
-		chatUIElements.AddTail(tmp);
+		chatUIElements.push_back(tmp);
 		// got it from previous message drawing calculation
 		ptStart.y += cyChatItem;
 		return 0;
@@ -685,12 +690,12 @@ int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType
 	}
 }
 
-int CChatControl::AddPaintElement(MESSAGE_SEND_STATUS status) {
+int CChatControl::AddPaintElement(MESSAGE_SEND_STATUS status, int recordIndex) {
 	// logic derived from drawElement
 	// set font not required
 	CPoint delivPtStart(cxChatText+timeWidth+1, ptStart.y);
 	CHATBOX_ELEMENT tmp = { ElemDeliveryStatusType, TEXT(""), delivPtStart, CPoint(deliveryStatusWidth, deliveryStatusWidth) };
-	chatUIElements.AddTail(tmp);
+	chatUIElements.push_back(tmp);
 
 	// not changing ptStart for delivery status print
 	//ptStart.x += cch.cx;
@@ -699,7 +704,7 @@ int CChatControl::AddPaintElement(MESSAGE_SEND_STATUS status) {
 
 // helper function for DrawElement
 // efficient implementation of emot icon code matching
-int CChatControl::DrawMessageEmo(CString message)
+int CChatControl::DrawMessageEmo(CString message, int recordIndex)
 {
 	if (message.IsEmpty())
 		return 0;
@@ -733,7 +738,7 @@ int CChatControl::DrawMessageEmo(CString message)
 		// add vspace before and after emo, to solve spacing problem of text after emo
 		if (PreviousItemType == TEXTSTR)
 			ptStart.x += cxChatTextHSpace;
-		VirtualDrawEmotIcon(emoIndex);
+		VirtualDrawEmotIcon(emoIndex, recordIndex);
 		CString tmpDbg(pEmoCodesList[emoIndex]);
 		startPos = emoPos + _tcslen(pEmoCodesList[emoIndex]);
 	}
@@ -906,7 +911,7 @@ void CChatControl::DrawChatText(CString str)
 // This handler loads a bitmap from system resources, 
 // centers it in the view, and uses BitBlt() to paint the bitmap 
 // bits. 
-void CChatControl::VirtualDrawEmotIcon(int index)
+void CChatControl::VirtualDrawEmotIcon(int emoIndex, int recordIndex)
 {
 	/*// load IDB_BMP_SMILE01 from our resources
 	CBitmap bmp;
@@ -938,8 +943,11 @@ void CChatControl::VirtualDrawEmotIcon(int index)
 				return ;
 			}*/
 		}
-		CHATBOX_ELEMENT tmp = { ElemEmotIconType, TEXT(":)"), ptStart, cch, index };
-		chatUIElements.AddTail(tmp);
+		
+		CString emoIndexStr;
+		emoIndexStr.Format(TEXT("%d"), emoIndex);
+		CHATBOX_ELEMENT tmp = { ElemEmotIconType, emoIndexStr, ptStart, cch, recordIndex };
+		chatUIElements.push_back(tmp);
 
 		/* if we want image scaling, ref: 
 		// dcMemory.SetStretchBltMode(HALFTONE);
@@ -968,7 +976,7 @@ bool CChatControl::VirtualDrawTextMultiLine(CString str)
 	// we want to scroll, do not restrict anymore on y
 	if (ptRes.x >= 0) {
 		CHATBOX_ELEMENT tmp = { ElemMessageType, str, ptStart, cch };
-		chatUIElements.AddTail(tmp);
+		chatUIElements.push_back(tmp);
 
 		// pDC->TextOut(ptStart.x, ptStart.y, str);
 		ptStart.x += cch.cx;
@@ -1003,7 +1011,7 @@ bool CChatControl::VirtualDrawTextMultiLine(CString str)
 		cch = pDC->GetOutputTextExtent(line);
 
 		CHATBOX_ELEMENT tmp = { ElemMessageType, line, ptStart, cch };
-		chatUIElements.AddTail(tmp);
+		chatUIElements.push_back(tmp);
 
 		str = str.Mid(line.GetLength());
 	}
@@ -1080,7 +1088,7 @@ void CChatControl::PaintUIElements() {
 	// To detect new line
 	//int preY=ptStart.y;		// dummy initialization ptStart.y might not be necessary
 
-	POSITION pos = chatUIElements.GetHeadPosition();
+	// POSITION pos = chatUIElements.GetHeadPosition();
 	bool drawStarted = false;
 	bool isInsideRect = true;
 	bool isAlternateNameColor = false;
@@ -1088,9 +1096,9 @@ void CChatControl::PaintUIElements() {
 
 	// ** implement drawing according to co-ordinates of update region
 	//  && endUIElemIndex == -1; ) && (i<endUIElemIndex+1)
-	for (int i=0; i < chatUIElements.GetCount() && rowDrawComplete==false; i++)
+	for (int i=0; i < (int) chatUIElements.size() && rowDrawComplete==false; i++)
 	{
-		CHATBOX_ELEMENT curChatElement = (CHATBOX_ELEMENT) chatUIElements.GetNext(pos);
+		CHATBOX_ELEMENT curChatElement = chatUIElements.at(i);
 		curChatElement.ptStart.y -=  yScrollAmount;
 
 		switch(curChatElement.type) {
@@ -1192,8 +1200,9 @@ void CChatControl::PaintUIElements() {
 				pngImage.transp
 			}
 			*/
+
 			//if (bmp.Attach(pngImage.Detach()))// ref: http://msdn.microsoft.com/en-us/library/97h2k0zx.aspx 
-			if (bmp.LoadBitmap(IDB_BMP_EMOTICON_01+curChatElement.recordIndex))
+			if (bmp.LoadBitmap(IDB_BMP_EMOTICON_01+_ttoi(curChatElement.text)))
 			{
 				// COLORREF oldBkColor = pDC->SetBkColor(TRANSPARENT);
 				// Create an in-memory DC compatible with the display DC we're using to paint
@@ -1299,8 +1308,29 @@ void CChatControl::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 	CWnd::OnMouseHWheel(nFlags, zDelta, pt);
 }
 
+/*
 // in case user resizes the window, fix page size
 void CChatControl::Repaint()
 {
 	Invalidate();
 }
+
+int Compare (const CHATBOX_ITEM& cItem) {
+
+   if (year<d.year) {
+      return -1;
+   }
+   else if (year>d.year) {
+      return 1;
+   }
+   else if (month<d.month) {
+      return -1;
+   }
+   else if (month>d.month) {
+      return 1;
+   }
+   // same for day
+
+   return 0;
+}
+*/
