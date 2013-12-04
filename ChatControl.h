@@ -7,8 +7,10 @@
 
 #pragma once
 #include "afxwin.h"
+#include <vector>
 #include "resource.h"		// for IDC_CHATCUSTOM
 #define CUSTOMWNDCLASS TEXT("CChatControl")
+
 
 class CTestEmoCustomControlDlg;
 // sent status updates
@@ -28,15 +30,16 @@ typedef struct CHATBOX_ITEM {
 	MESSAGE_SEND_STATUS send_status;		// SENT, PENDING, DELIVERED
 	CString message;							// message data
 	//CTime	msgTimeDate;						// for keeping date and time of last sent message
-	CString	time;
-	CString	date;
+	// CString	time;
+	// CString	date;
+	CTime timedate;
 	CString user_name;
 	// CString user_image_path;		 not used
 } CHATBOX_ITEM;
 
 // structure for maintaining paint UI elements
 typedef struct CHATBOX_ELEMENT {
-	CHATBOX_ELEMENT_TYPE type;		// SENT, PENDING, DELIVERED
+	CHATBOX_ELEMENT_TYPE type;		// type of elements
 	CString text;					// message data, date, time, emo index only in case of emo
 	CPoint ptStart;
 	CSize size;
@@ -58,8 +61,8 @@ private:
 		// Dialog Data
 	enum { IDD = IDC_CHATCUSTOM };
 	// CHATBOX_ITEM m_currentChatItem;
-	CList<CHATBOX_ITEM, CHATBOX_ITEM&> chatRecords;
-	CList<CHATBOX_ELEMENT, CHATBOX_ELEMENT&> chatUIElements;
+	std::vector<CHATBOX_ITEM> chatRecords;		// vector ref: http://msdn.microsoft.com/en-us/library/9xd04bzs.aspx
+	std::vector<CHATBOX_ELEMENT> chatUIElements;
 
 	// CList<CRect, CRect&> invalideRectList;
 	
@@ -118,24 +121,25 @@ private:
 	// Private functions
 	void OnInitChatControl();
 
+
 	// for drawing pre-calculation
-	int DrawMessageEmo(CString message);
+	int DrawMessageEmo(CString message, int recordIndex);
 	void DrawChatText(CString str);
 	bool VirtualDrawTextMultiLine(CString str);
-	void VirtualDrawEmotIcon(int index);
+	void VirtualDrawEmotIcon(int emoIndex, int recordIndex);
 	CString ExtractFittableLineFromStr(const CString str);
 	int GetFittablePositionRecursive(const CString str, int iMin, int iMax);
 	bool IsFittableInRectangle(const CString gStr, const int index);
 
 	// UI paint functions
 	void PaintUIElements();
-	int AddChatItemToPaintElements(CHATBOX_ITEM& chatItem);
+	int AddChatItemToPaintElements(CHATBOX_ITEM& chatItem, int recordIndex);
 		// functions to pre-calculate drawing elements
-	int AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType);
+	int AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType, int recordIndex);
+	int AddPaintElement(MESSAGE_SEND_STATUS status, int recordIndex);
 	void PaintElements();
 	BOOL RegisterWndClass();
 	int FindEmoCode(int startIndex, CString str, int* foundEmoIndex);
-	int AddPaintElement(MESSAGE_SEND_STATUS status);
 
 public:
 	CChatControl(CTestEmoCustomControlDlg* pDlg);
@@ -145,7 +149,7 @@ public:
 	// not necessary
 	//virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	void PostChatMessage(CString chat_message, CTime timedate);
-	void Repaint();
+	// void Repaint();
 	// Implementation
 protected:
 	//afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct) ;
@@ -156,6 +160,23 @@ protected:
 	// afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
+};
+
+class ChatItemSorter
+{
+    public:
+        // take the field to sort by in the constructor
+		ChatItemSorter() {}
+        ChatItemSorter (const CHATBOX_ITEM& item) : m_cItem( item ) {}
+
+        bool operator() (const CHATBOX_ITEM& lhs, const CHATBOX_ITEM& rhs)
+        {
+            // get the field to sort by and make the comparison
+            return (lhs.timedate < rhs.timedate);
+        }
+
+    private:
+        CHATBOX_ITEM m_cItem;
 };
 
 // Other functions which are good without sharing data from the class
