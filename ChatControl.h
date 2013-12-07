@@ -34,6 +34,8 @@ typedef struct CHATBOX_ITEM {
 	// CString	date;
 	CTime timedate;
 	CString user_name;
+	std::vector<CHATBOX_ELEMENT> UIElements;
+	// int UIElemIndex;
 	// CString user_image_path;		 not used
 } CHATBOX_ITEM;
 
@@ -43,7 +45,7 @@ typedef struct CHATBOX_ELEMENT {
 	CString text;					// message data, date, time, emo index only in case of emo
 	CPoint ptStart;
 	CSize size;
-	int recordIndex;			// index on chat records, to facilitate a mapping
+	// int recordIndex;			// index on chat records, to facilitate a mapping
 } CHATBOX_ELEMENT;
 
 /* // structure for maintaining backup data for easy data communication between CChatControl and CChatUIPainter
@@ -62,7 +64,7 @@ private:
 	enum { IDD = IDC_CHATCUSTOM };
 	// CHATBOX_ITEM m_currentChatItem;
 	std::vector<CHATBOX_ITEM> chatRecords;		// vector ref: http://msdn.microsoft.com/en-us/library/9xd04bzs.aspx
-	std::vector<CHATBOX_ELEMENT> chatUIElements;
+	//std::vector<CHATBOX_ELEMENT> chatUIElements;
 
 	// CList<CRect, CRect&> invalideRectList;
 	
@@ -121,25 +123,25 @@ private:
 	// Private functions
 	void OnInitChatControl();
 
-
 	// for drawing pre-calculation
-	int DrawMessageEmo(CString message, int recordIndex);
-	void DrawChatText(CString str);
-	bool VirtualDrawTextMultiLine(CString str);
-	void VirtualDrawEmotIcon(int emoIndex, int recordIndex);
+	int DrawMessageEmo(CString message, int& indexOfInsertion, int recordIndex);
+	void DrawChatText(CString str, int& indexOfInsertion);
+	bool VirtualDrawTextMultiLine(CString str, int& indexOfInsertion);
+	void VirtualDrawEmotIcon(int emoIndex, int& indexOfInsertion, int recordIndex);
 	CString ExtractFittableLineFromStr(const CString str);
 	int GetFittablePositionRecursive(const CString str, int iMin, int iMax);
 	bool IsFittableInRectangle(const CString gStr, const int index);
 
 	// UI paint functions
 	void PaintUIElements();
-	int AddChatItemToPaintElements(CHATBOX_ITEM& chatItem, int recordIndex);
+	int AddChatItemToPaintElements(CHATBOX_ITEM& chatItem, int& indexOfInsertion, int recordIndex);
 		// functions to pre-calculate drawing elements
-	int AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType, int recordIndex);
-	int AddPaintElement(MESSAGE_SEND_STATUS status, int recordIndex);
+	int AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType, int& indexOfInsertion, int recordIndex);
+	int AddPaintElement(MESSAGE_SEND_STATUS status, int indexOfInsertion, int recordIndex);
 	void PaintElements();
 	BOOL RegisterWndClass();
 	int FindEmoCode(int startIndex, CString str, int* foundEmoIndex);
+	void UpdateNextElementsCordinates(int updateIndex, int yOffset);
 
 public:
 	CChatControl(CTestEmoCustomControlDlg* pDlg);
@@ -162,6 +164,7 @@ protected:
 	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 };
 
+// ref for implementation: http://www.cprogramming.com/tutorial/functors-function-objects-in-c++.html, there is a mistake inside the example code in referred URL
 class ChatItemSorter
 {
     public:
