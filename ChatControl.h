@@ -18,142 +18,73 @@ enum MESSAGE_SEND_STATUS { Trying, Pending, Delivered, Failed };
 
 // item field type, type for members of chat items
 // we could reuse CHATBOX_ELEMENT_TYPE for CChatUIPainter but we may need our own in future if there is structural change to the declation of CHATBOX_ELEMENT
-enum CHATBOX_FIELD_TYPE { FieldDateType, FieldNameType, FieldMessageType, FieldTimeType/*, FieldDeliveryStatusType*/ };
+enum CHATBOX_FIELD_TYPE { FieldDateType, FieldNameType, FieldMessageType, FieldTimeType, FieldDeliveryStatusType };
 
 // element type
 enum CHATBOX_ELEMENT_TYPE { ElemDateType, ElemNameType, ElemMessageType, ElemEmotIconType, ElemTimeType, ElemDeliveryStatusType };
 
+// structure for maintaining paint UI elements
+typedef struct _CHATBOX_ELEMENT {
+	CHATBOX_ELEMENT_TYPE type;		// type of elements
+	CString sText;					// message data, date, time, emo index only in case of emo
+	CPoint ptStart;
+	CSize csz;
+	// int recordIndex;			// index on chat records, to facilitate a mapping
+} CHATBOX_ELEMENT;
+
 // Replace vector when random access is required or we encounter a problem with CList which deduces CList as buggy
 // structure for maintaining chat items
 // Single record definition
-typedef struct CHATBOX_ITEM {
+typedef struct _CHATBOX_ITEM {
 	MESSAGE_SEND_STATUS send_status;		// SENT, PENDING, DELIVERED
-	CString message;							// message data
+	CString sMessage;							// message data
 	//CTime	msgTimeDate;						// for keeping date and time of last sent message
 	// CString	time;
 	// CString	date;
 	CTime timedate;
-	CString user_name;
-	std::vector<CHATBOX_ELEMENT> UIElements;
+	CString sUserName;
+	std::vector<CHATBOX_ELEMENT> vUIElements;
 	// int UIElemIndex;
 	// CString user_image_path;		 not used
 } CHATBOX_ITEM;
 
-// structure for maintaining paint UI elements
-typedef struct CHATBOX_ELEMENT {
-	CHATBOX_ELEMENT_TYPE type;		// type of elements
-	CString text;					// message data, date, time, emo index only in case of emo
-	CPoint ptStart;
-	CSize size;
-	// int recordIndex;			// index on chat records, to facilitate a mapping
-} CHATBOX_ELEMENT;
-
-/* // structure for maintaining backup data for easy data communication between CChatControl and CChatUIPainter
-typedef struct CHATBOX_SHARED_DATA {
-	CString date;
-	CString name;
-	CPoint ptStart;
-} CHATBOX_SHARED_DATA;*/
-
-
 class CChatControl :
 	public CWnd
 {
-private:
-		// Dialog Data
-	enum { IDD = IDC_CHATCUSTOM };
-	// CHATBOX_ITEM m_currentChatItem;
-	std::vector<CHATBOX_ITEM> chatRecords;		// vector ref: http://msdn.microsoft.com/en-us/library/9xd04bzs.aspx
-	//std::vector<CHATBOX_ELEMENT> chatUIElements;
+public:
+	CChatControl(CTestEmoCustomControlDlg* pDlg);		// requires public access for construction from Dialog class
+	~CChatControl(void);								// requires public access for destruction from Dialog class
 
-	// CList<CRect, CRect&> invalideRectList;
-	
-	int nMaxScreen;
-	int yItem;
-	int yClient;		// height of client rectangle
-	int nMaxLines;
-	int nMaxScroll;
-	int yScrollAmount;
-	int cyScrollUnit;
-
-	int cyChatItem;
-
-	//int startUIElemIndex;
-	//int endUIElemIndex;
-	
-	int cxChatText;		// defines where message text ends and x from where time will be painted from
-	int cxChatTextHSpace;
-
-	CFont dateFont;
-	CFont headingFont;
-	CFont textFont;
-	CFont timeFont;
-
-	// font heights
-	int yCharDate;
-	int yCharHeading;
-	int yCharChatText;
-	int yCharTime;
-
-
-	// CSize m_clientSize;
-	int timeWidth;
-	int deliveryStatusWidth;
-	bool scrollbarEnabled;
-	int scrollbarWidth;
-	// int lastSBACtion;
-	// CHATBOX_SHARED_DATA lastPaintElement;
-
-	// UI members and properties
-	//string and variables
-	CPoint ptStart;		// draw from this point
-	CPoint ptClipStart;	// left top point of clip rectangle
-	CPoint ptEnd;		// this is the limiting point
-
-	// DC for painting
-	CDC* pDC;
-	CFont* pOldFont;
-
-	CString headingText;
-	CString dateText;
-	CTestEmoCustomControlDlg* m_pMainDlg;
-	TCHAR **pEmoCodesList;
-	// bool isAlternateNameColor;
-
-	// Private functions
+protected:
+// Implementation
 	void OnInitChatControl();
+	BOOL RegisterWndClass();
+public:
+	void PostChatMessage(CString chat_message, CTime timedate);
+
+// UI paint functions
+protected:
+	void PaintUIElements();
+	int AddChatItem(CHATBOX_ITEM& chatItem);
+	int CreatePaintElement(CHATBOX_ITEM& chatItem);
+		// functions to pre-calculate drawing elements
+	int AddPaintElement(CHATBOX_ITEM& chatItem, CHATBOX_FIELD_TYPE strType);
 
 	// for drawing pre-calculation
-	int DrawMessageEmo(CString message, int& indexOfInsertion, int recordIndex);
-	void DrawChatText(CString str, int& indexOfInsertion);
-	bool VirtualDrawTextMultiLine(CString str, int& indexOfInsertion);
-	void VirtualDrawEmotIcon(int emoIndex, int& indexOfInsertion, int recordIndex);
+	int DrawMessageEmo(CString message);
+	void DrawChatText(CString str);
+	bool VirtualDrawTextMultiLine(CString str);
+	void VirtualDrawEmotIcon(int emoIndex);
 	CString ExtractFittableLineFromStr(const CString str);
 	int GetFittablePositionRecursive(const CString str, int iMin, int iMax);
 	bool IsFittableInRectangle(const CString gStr, const int index);
 
-	// UI paint functions
-	void PaintUIElements();
-	int AddChatItemToPaintElements(CHATBOX_ITEM& chatItem, int& indexOfInsertion, int recordIndex);
-		// functions to pre-calculate drawing elements
-	int AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType, int& indexOfInsertion, int recordIndex);
-	int AddPaintElement(MESSAGE_SEND_STATUS status, int indexOfInsertion, int recordIndex);
 	void PaintElements();
-	BOOL RegisterWndClass();
-	int FindEmoCode(int startIndex, CString str, int* foundEmoIndex);
-	void UpdateNextElementsCordinates(int updateIndex, int yOffset);
 
-public:
-	CChatControl(CTestEmoCustomControlDlg* pDlg);
-	~CChatControl(void);
+	int FindEmoCode(int startIndex, CString str, int& foundEmoIndex);
+	void UpdateNextElementsCordinates(int yOffset);
 
-
-	// not necessary
-	//virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
-	void PostChatMessage(CString chat_message, CTime timedate);
-	// void Repaint();
-	// Implementation
-protected:
+// Message Handlers
 	//afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct) ;
 	afx_msg void OnPaint( );
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
@@ -162,6 +93,63 @@ protected:
 	// afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
+		// Dialog Data
+	enum { IDD = IDC_CHATCUSTOM };
+
+// Data members
+	int m_nMaxScreen;
+	int m_yItem;
+	int m_yClient;		// height of client rectangle
+	int m_nMaxLines;
+	int m_nMaxScroll;
+	int m_yScrollAmount;
+	int m_cyScrollUnit;
+	int m_cyChatItem;
+
+	//int startUIElemIndex;
+	//int endUIElemIndex;
+	
+	int m_cxChatText;		// defines where message text ends and x from where time will be painted from
+	int m_cxChatTextHSpace;
+
+	CFont m_dateFont;
+	CFont m_headingFont;
+	CFont m_textFont;
+	CFont m_timeFont;
+
+	// font heights
+	int m_yCharDate;
+	int m_yCharHeading;
+	int m_yCharChatText;
+	int m_yCharTime;
+
+	// CSize m_clientSize;
+	int m_cxTimeWidth;
+	int m_cxDeliveryStatusWidth;
+	bool m_bScrollbarEnabled;
+	int m_cxScrollbarWidth;
+	// int lastSBACtion;
+	// CHATBOX_SHARED_DATA lastPaintElement;
+
+	// UI members and properties
+	//string and variables
+	CPoint m_ptStart;		// draw from this point
+	CPoint m_ptClipStart;	// left top point of clip rectangle
+	CPoint m_ptEnd;		// this is the limiting point
+
+	// DC for painting
+	CDC* m_pDC;
+	CFont* m_pOldFont;
+
+	//CString m_sHeadingText;
+	//CString m_sDateText;
+	CTestEmoCustomControlDlg* m_pMainDlg;
+	TCHAR **pEmoCodesList;
+	int m_iChatItemInsertionIndex;
+
+	// CHATBOX_ITEM m_currentChatItem;
+	std::vector<CHATBOX_ITEM> m_vChatRecords;		// vector ref: http://msdn.microsoft.com/en-us/library/9xd04bzs.aspx
+	//std::vector<CHATBOX_ELEMENT> chatUIElements;
 };
 
 // ref for implementation: http://www.cprogramming.com/tutorial/functors-function-objects-in-c++.html, there is a mistake inside the example code in referred URL

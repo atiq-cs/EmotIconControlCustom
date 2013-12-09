@@ -13,28 +13,29 @@
 
 // our contructor
 CChatControl::CChatControl(CTestEmoCustomControlDlg* pDlg):
-	nMaxScreen(0),
-	yItem(0),
-	nMaxScroll(0),
-	timeWidth(0),
-	deliveryStatusWidth(17),
-	nMaxLines(0),
-	yScrollAmount(0),
-	yClient(0),
-	cyChatItem(0),
-	scrollbarWidth(18),
-	scrollbarEnabled(false),
-	cyScrollUnit(0),
+	m_nMaxScreen(0),
+	m_yItem(0),
+	m_nMaxScroll(0),
+	m_cxTimeWidth(0),
+	m_cxDeliveryStatusWidth(17),
+	m_nMaxLines(0),
+	m_yScrollAmount(0),
+	m_yClient(0),
+	m_cyChatItem(0),
+	m_cxScrollbarWidth(18),
+	m_bScrollbarEnabled(false),
+	m_cyScrollUnit(0),
 	// startUIElemIndex(0),
 	// endUIElemIndex(-1),
-	pDC(NULL),
-	pOldFont(NULL),
-	dateText(TEXT("")),
-	headingText(TEXT("")),
-	cxChatText(0),
-	cxChatTextHSpace(2),
+	m_pDC(NULL),
+	m_pOldFont(NULL),
+	//m_sDateText(TEXT("")),
+	//m_sHeadingText(TEXT("")),
+	m_cxChatText(0),
+	m_cxChatTextHSpace(2),
 	m_pMainDlg(pDlg),
-	pEmoCodesList(NULL)
+	pEmoCodesList(NULL),
+	m_iChatItemInsertionIndex(0)
 	// isAlternateNameColor(false)
 	// lastSBACtion(0)
 {
@@ -42,17 +43,17 @@ CChatControl::CChatControl(CTestEmoCustomControlDlg* pDlg):
 	if (RegisterWndClass() == FALSE) {
 		AfxMessageBox(_T("Window proc registration failed"), MB_OK);
 	}
-	yCharDate = yCharHeading = yCharChatText = yCharTime = 0;
+	m_yCharDate = m_yCharHeading = m_yCharChatText = m_yCharTime = 0;
 }
 
 // delete anything we have manually created/allocated
 CChatControl::~CChatControl(void)
 {
 	// delete fonts objects
-	dateFont.DeleteObject();
-	headingFont.DeleteObject();
-	textFont.DeleteObject();
-	timeFont.DeleteObject();
+	m_dateFont.DeleteObject();
+	m_headingFont.DeleteObject();
+	m_textFont.DeleteObject();
+	m_timeFont.DeleteObject();
 }
 
 // registers the window class for custom control
@@ -154,7 +155,7 @@ void CChatControl::OnInitChatControl() {
 	lf.lfHeight = 20;                      // request a 16-pixel-height font
 	//lf.lfWeight = FW_DEMIBOLD;
 	_tcsncpy_s(lf.lfFaceName, LF_FACESIZE, _T("Arial"), 7);                    // request a face name "Arial"
-	VERIFY(dateFont.CreateFontIndirect(&lf));  // create the font 
+	VERIFY(m_dateFont.CreateFontIndirect(&lf));  // create the font 
 
 	// heading font
 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
@@ -162,52 +163,52 @@ void CChatControl::OnInitChatControl() {
 	lf.lfWeight = FW_DEMIBOLD;
 	_tcsncpy_s(lf.lfFaceName, LF_FACESIZE, 
 	   _T("Times New Roman"), 7);                    // request a face name "Times New Roman"
-	VERIFY(headingFont.CreateFontIndirect(&lf));  // create the font 
+	VERIFY(m_headingFont.CreateFontIndirect(&lf));  // create the font 
 
 	// text font
 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
 	lf.lfHeight = 14;                      // request a 14-pixel-height font
 	_tcsncpy_s(lf.lfFaceName, LF_FACESIZE, 
 	   _T("Verdana"), 7);                    // request a face name "Verdana"
-	VERIFY(textFont.CreateFontIndirect(&lf));  // create the font 
+	VERIFY(m_textFont.CreateFontIndirect(&lf));  // create the font 
 	
 	// time font
 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
 	lf.lfHeight = 12;                      // request a 12-pixel-height font
 	_tcsncpy_s(lf.lfFaceName, LF_FACESIZE, 
 	   _T("Verdana"), 7);                    // request a face name "Verdana"
-	VERIFY(timeFont.CreateFontIndirect(&lf));  // create the font
+	VERIFY(m_timeFont.CreateFontIndirect(&lf));  // create the font
 
 	// Pre-calculate font heights
 
 	// Get the handle to the client area's device context, use GETDC to retrieve outside of WM_Paint
     CDC* pdc = GetDC(); 
-	timeWidth = pdc->GetOutputTextExtent(TEXT("11:59:59 PM")).cx;			// ref: http://msdn.microsoft.com/en-us/library/xt679a2s(v=vs.110).aspx
+	m_cxTimeWidth = pdc->GetOutputTextExtent(TEXT("11:59:59 PM")).cx;			// ref: http://msdn.microsoft.com/en-us/library/xt679a2s(v=vs.110).aspx
 	// quick fix, need to improve the logic
 	//deliveryStatusWidth += scrollbarWidth;
     // Extract font dimensions from the text metrics. 
 	TEXTMETRIC tm;
 	// get height for font 0
-	CFont* pOldFont = pdc->SelectObject(&dateFont);
+	CFont* pOldFont = pdc->SelectObject(&m_dateFont);
     pdc->GetTextMetrics(&tm);
     // xChar = tm.tmAveCharWidth; 
     // xUpper = (tm.tmPitchAndFamily & 1 ? 3 : 2) * xChar/2; 
-	yCharDate = tm.tmHeight + tm.tmExternalLeading + 4;
-	cyScrollUnit = yCharDate;
+	m_yCharDate = tm.tmHeight + tm.tmExternalLeading + 4;
+	m_cyScrollUnit = m_yCharDate;
 	// get height for font 1
-	pdc->SelectObject(&headingFont);
+	pdc->SelectObject(&m_headingFont);
     pdc->GetTextMetrics(&tm);
-	yCharHeading = tm.tmHeight + tm.tmExternalLeading + 4;
+	m_yCharHeading = tm.tmHeight + tm.tmExternalLeading + 4;
  
 	// get height for font 2
-	pdc->SelectObject(&textFont);
+	pdc->SelectObject(&m_textFont);
     pdc->GetTextMetrics(&tm);
-	yCharChatText = tm.tmHeight + tm.tmExternalLeading+10;
+	m_yCharChatText = tm.tmHeight + tm.tmExternalLeading+10;
 
 	// get height for font 3
-	pdc->SelectObject(&timeFont);
+	pdc->SelectObject(&m_timeFont);
     pdc->GetTextMetrics(&tm); 
-	yCharTime = tm.tmHeight + tm.tmExternalLeading; 
+	m_yCharTime = tm.tmHeight + tm.tmExternalLeading; 
 
 	// get clip rectangle fails here, probably control is not created yet
 
@@ -240,24 +241,24 @@ void CChatControl::OnInitChatControl() {
 // 1. has to set transparent
 void CChatControl::OnPaint() {
 	// avoid paint when record is inserted
-	if (chatUIElements.empty()) {
+	if (m_vChatRecords.empty()) {
 		// Dummy code to unblock tool-tip for all controls in the dialog
 		PAINTSTRUCT ps;
-		pDC = BeginPaint(&ps);
-		pDC->TextOut(0, 0, _T(" "));
+		m_pDC = BeginPaint(&ps);
+		m_pDC->TextOut(0, 0, _T(" "));
 		EndPaint(&ps);
-		pDC = NULL;
+		m_pDC = NULL;
 		return;
 	}
 
-	if (pDC)
+	if (m_pDC)
 		return ;
 
-	if (ptEnd == CPoint(0,0))
+	if (m_ptEnd == CPoint(0,0))
 		return;
 
 	PAINTSTRUCT ps;
-	pDC = BeginPaint(&ps);
+	m_pDC = BeginPaint(&ps);
 	// initialization which were previously done in ChatUIPainter
 	// get clip rectangle and save as points
 	/*CRect rcClip;
@@ -277,13 +278,13 @@ void CChatControl::OnPaint() {
 	PaintUIElements();
 
 	// restore font
-	if (pOldFont) {
-		pDC->SelectObject(&pOldFont);
-		pOldFont = NULL;
+	if (m_pOldFont) {
+		m_pDC->SelectObject(&m_pOldFont);
+		m_pOldFont = NULL;
 	}
 
-	if (pDC)
-		pDC = NULL;
+	if (m_pDC)
+		m_pDC = NULL;
 
 	EndPaint(&ps);
 }
@@ -309,7 +310,7 @@ void CChatControl::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
         // User clicked the END keyboard key.
         case SB_BOTTOM:
-            CurPos = nMaxScroll;
+            CurPos = m_nMaxScroll;
             break;
 
         // User clicked the top arrow.
@@ -320,7 +321,7 @@ void CChatControl::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
         // User clicked the bottom arrow.
         case SB_LINEDOWN:
-			CurPos = min(nMaxScroll, CurPos+1);
+			CurPos = min(m_nMaxScroll, CurPos+1);
             break;
 
         // User clicked the scroll bar shaft above the scroll box.
@@ -341,7 +342,7 @@ void CChatControl::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
             // Get the page size. 
 			SCROLLINFO   si;
 			GetScrollInfo(SB_VERT, &si);
-   			CurPos = min(nMaxScroll, CurPos + (int) si.nPage);
+   			CurPos = min(m_nMaxScroll, CurPos + (int) si.nPage);
             break;
             // si.nPos += si.nPage;
 			}
@@ -366,14 +367,14 @@ void CChatControl::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		// we need to 
 		//  && CurPos == nMaxScroll-1
 		int scrollY = 0;
-		if (yPos==nMaxScroll) {
-			scrollY =  (yItem-yClient) % cyScrollUnit-cyScrollUnit;
+		if (yPos==m_nMaxScroll) {
+			scrollY =  (m_yItem-m_yClient) % m_cyScrollUnit-m_cyScrollUnit;
 		}
-		else if (CurPos == nMaxScroll) {
-			scrollY =  cyScrollUnit-(yItem-yClient) % cyScrollUnit;
+		else if (CurPos == m_nMaxScroll) {
+			scrollY =  m_cyScrollUnit-(m_yItem-m_yClient) % m_cyScrollUnit;
 		}
-		scrollY += cyScrollUnit * (yPos-CurPos);
-		yScrollAmount -= scrollY;
+		scrollY += m_cyScrollUnit * (yPos-CurPos);
+		m_yScrollAmount -= scrollY;
 		ScrollWindow(0, scrollY);
 
 		/*{
@@ -421,8 +422,9 @@ void CChatControl::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 // this function has the responsibility to set everything up
 // so that next OnPaint can easily draw elements and scrollbar with appropriate positions
 void CChatControl::PostChatMessage(CString chat_message, CTime time_date) {
+	// construct new chat item
 	CHATBOX_ITEM m_currentChatItem = {};
-	m_currentChatItem.message = chat_message;
+	m_currentChatItem.sMessage = chat_message;
 	// m_currentChatItem.date = TEXT("TODAY");
 	// m_currentChatItem.timedate = TEXT("TODAY");
 
@@ -434,10 +436,10 @@ void CChatControl::PostChatMessage(CString chat_message, CTime time_date) {
     srand( (unsigned)time( NULL ) );
 	bool isRecievedFromNetwork = (bool) (((int) rand()) % 2);
 	if (isRecievedFromNetwork) {
-		m_currentChatItem.user_name = TEXT("Client 01");
+		m_currentChatItem.sUserName = TEXT("Client 01");
 	}
 	else {
-		m_currentChatItem.user_name = TEXT("Client 02");
+		m_currentChatItem.sUserName = TEXT("Client 02");
 
 		// Convert the time to GMT/UTC
 		CTimeSpan tz(0, 6, 0, 0);	// for timezone
@@ -464,55 +466,13 @@ void CChatControl::PostChatMessage(CString chat_message, CTime time_date) {
 
 	m_currentChatItem.send_status = Trying;
 
-	// chatRecords.push_back(m_currentChatItem);
-	ChatItemSorter chatItemComparator;
-	// ref: http://msdn.microsoft.com/en-us/library/34hhk3zb.aspx & http://stackoverflow.com/questions/4940809/how-to-find-a-lower-bound-in-a-sorted-vector
-	std::vector<CHATBOX_ITEM>::iterator it = std::lower_bound( chatRecords.begin(), chatRecords.end(), m_currentChatItem, chatItemComparator); // find proper position in descending order
-	int recordIndex = it - chatRecords.begin(); // ref: http://stackoverflow.com/questions/2152986/best-way-to-get-the-index-of-an-iterator
-
-	int yItemDiff = 0;
-	// int m_uiIndex=0; //, pre_uiIndex=0;
-
-	// UI elements can appear out of order, so we need to update drawing starting point
-	// get ptstart from current UI element that is mapped by chatRecord
-
-	// Do preparsing here, for example, detecting all emot icons here so that it saves time for onPaint
-	// add the chat item as UI Elements
-	if (it == chatRecords.begin()) {
-		// m_uiIndex = 0;
-		// m_currentChatItem.UIElemIndex = m_uiIndex;
-		ptStart.x = 0;
-		ptStart.y = 0;
-		// m_uiIndex is index of insertion for 
-		yItemDiff = AddChatItemToPaintElements(m_currentChatItem, 0, recordIndex);
-	}
-	else if (it == chatRecords.end()) {
-		m_uiIndex = chatUIElements.size();
-		m_currentChatItem.UIElemIndex = m_uiIndex;
-		ptStart.y = chatUIElements.at(m_uiIndex-3).ptStart.y + chatUIElements.at(m_uiIndex-3).size.cy+yCharChatText;
-		yItemDiff = AddChatItemToPaintElements(m_currentChatItem, m_uiIndex, recordIndex);
-	}
-	else {
-		m_uiIndex = m_currentChatItem.UIElemIndex = it->UIElemIndex;
-		ptStart = chatUIElements[m_uiIndex].ptStart;
-		yItemDiff = AddChatItemToPaintElements(m_currentChatItem, m_uiIndex, recordIndex);
-	}
-
-	// update starting drawing point for all drawing elements
-	if (chatUIElements.empty() == false && it != chatRecords.end())
-		UpdateNextElementsCordinates(m_uiIndex, yItemDiff);
-
-	int v_index = it - chatRecords.begin() + 1;
-	chatRecords.insert( it, m_currentChatItem ); // insert before iterator it
-	// std::vector<CHATBOX_ITEM>::iterator v_it = 
-	for (; v_index < (int)chatRecords.size(); v_index++) {
-		chatRecords[v_index].UIElemIndex += m_uiIndex - m_currentChatItem.UIElemIndex;
-	}
+	// insert the chat item into appropriate position
+	int yItemDiff = AddChatItem(m_currentChatItem);
 
 	// pre-calculation
 	// get max number of lines fittable in client rect
 	// we need this to calculate max scroll position
-	if (nMaxScreen == 0) {
+	if (m_nMaxScreen == 0) {
 		// Get the device context
 		CDC* pdc = GetDC();
 		CRect rc;
@@ -520,8 +480,8 @@ void CChatControl::PostChatMessage(CString chat_message, CTime time_date) {
 		// CSize sz = pDC->GetWindowExt();
 		//nMaxScreen = sz.cy / m_fontHeight[2];
 		pdc->GetClipBox(&rc);
-		yClient = rc.Height();
-		nMaxScreen = yClient / cyScrollUnit;
+		m_yClient = rc.Height();
+		m_nMaxScreen = m_yClient / m_cyScrollUnit;
 		/*CString dbgStr;
 		dbgStr.Format(TEXT("exact mak screen lines = %f"), (double) (rc.Height()) / m_fontHeight[2]);
 		AfxMessageBox(dbgStr, MB_OK);*/
@@ -542,10 +502,10 @@ void CChatControl::PostChatMessage(CString chat_message, CTime time_date) {
 	//   if no then we have to adjust scrollbar range and page size
 
 	// total height exceeds current client rectangle height
-	if (yClient < yItem) {
+	if (m_yClient < m_yItem) {
 		// get current scroll position, no need to know this to verify condition for automatic scrolling
 		int yScrollPos = 0;
-		if (scrollbarEnabled) {
+		if (m_bScrollbarEnabled) {
 			yScrollPos = GetScrollPos(SB_VERT);
 		}
 
@@ -555,29 +515,32 @@ void CChatControl::PostChatMessage(CString chat_message, CTime time_date) {
 		si.cbSize = sizeof(si);
 		// automaticlly scroll only if current scroll position is max
 		// we use old nMaxScroll to check this
-		if (yScrollPos==nMaxScroll) {
-			yScrollAmount += yItemDiff;
+		if (yScrollPos==m_nMaxScroll) {
+			m_yScrollAmount += yItemDiff;
 			ScrollWindow(0, -yItemDiff);
-			nMaxScroll = (yItem - yClient) % cyScrollUnit?(yItem - yClient) / cyScrollUnit+1:(yItem - yClient) / cyScrollUnit;
-			si.nPos = nMaxScroll;
+			m_nMaxScroll = (m_yItem - m_yClient) % m_cyScrollUnit?(m_yItem - m_yClient) / m_cyScrollUnit+1:(m_yItem - m_yClient) / m_cyScrollUnit;
+			si.nPos = m_nMaxScroll;
 			si.fMask  = SIF_PAGE | SIF_RANGE | SIF_POS;
+			// invalid the client rectangle if last element not been inserted on the end
+			if (m_iChatItemInsertionIndex < (int) m_vChatRecords.size() -1)
+				Invalidate();
 		}
 		else {
 			si.fMask  = SIF_PAGE | SIF_RANGE;
-			nMaxScroll = (yItem - yClient) % cyScrollUnit?(yItem - yClient) / cyScrollUnit+1:(yItem - yClient) / cyScrollUnit;
+			m_nMaxScroll = (m_yItem - m_yClient) % m_cyScrollUnit?(m_yItem - m_yClient) / m_cyScrollUnit+1:(m_yItem - m_yClient) / m_cyScrollUnit;
 		}
 
 		si.nMin = 0;
-		nMaxLines = nMaxScreen+nMaxScroll;
-		si.nMax = nMaxLines-1;
-		si.nPage  = nMaxScreen;
+		m_nMaxLines = m_nMaxScreen + m_nMaxScroll;
+		si.nMax = m_nMaxLines - 1;
+		si.nPage  = m_nMaxScreen;
 		SetScrollInfo(SB_VERT, &si);
 
-		if (scrollbarEnabled==false) {
-			yScrollAmount = yItem - yClient;
+		if (m_bScrollbarEnabled==false) {
+			m_yScrollAmount = m_yItem - m_yClient;
 			// Update paint elements here
 			// Invalidate();	// need to redraw entire client as scrollbar is being drawn first time, to get time in correct position
-			scrollbarEnabled = true;
+			m_bScrollbarEnabled = true;
 			//timeWidth -= 18;
 			//deliveryStatusWidth -= scrollbarWidth;
 			//ScrollWindow(0, );
@@ -594,138 +557,214 @@ void CChatControl::PostChatMessage(CString chat_message, CTime time_date) {
 	}
 }
 
+int CChatControl::AddChatItem(CHATBOX_ITEM& chatItem) {
+	// find lower bound to insert
+	ChatItemSorter chatItemComparator;
+	// ref: http://msdn.microsoft.com/en-us/library/34hhk3zb.aspx & http://stackoverflow.com/questions/4940809/how-to-find-a-lower-bound-in-a-sorted-vector
+	std::vector<CHATBOX_ITEM>::iterator it = std::lower_bound( m_vChatRecords.begin(), m_vChatRecords.end(), chatItem, chatItemComparator); // find proper position in descending order
+	m_iChatItemInsertionIndex = it - m_vChatRecords.begin(); // ref: http://stackoverflow.com/questions/2152986/best-way-to-get-the-index-of-an-iterator
+
+	// UI elements can appear out of order, so we need to update drawing starting point
+	// get ptstart from current UI element that is mapped by chatRecord
+	
+	// update ptStart
+	if (m_iChatItemInsertionIndex == 0) {
+		m_ptStart = CPoint(0, 0);
+	}
+	else {
+		std::vector<CHATBOX_ELEMENT> vCurUIElem = (it - 1)->vUIElements;
+		int i=vCurUIElem.size()-1;
+		for (; i < (int) vCurUIElem.size() && vCurUIElem[i].type != ElemMessageType; i--);
+		m_ptStart.x = 0;
+		m_ptStart.y = vCurUIElem[i].ptStart.y + vCurUIElem[i].csz.cy + 10;		// 10 to match with m_yCharChatText
+	}
+
+	m_vChatRecords.insert(it, chatItem);
+	// Do preparsing here, for example, detecting all emot icons here so that it saves time for onPaint
+	// add the chat item as UI Elements
+	int yItemDiff = CreatePaintElement(m_vChatRecords[m_iChatItemInsertionIndex]);
+
+	// update starting drawing point for all drawing elements
+	if (m_vChatRecords.size() > 1 && m_iChatItemInsertionIndex < (int) m_vChatRecords.size()-1)
+		UpdateNextElementsCordinates(yItemDiff);
+	/*if (it == m_vChatRecords.begin()) {
+		// m_uiIndex = 0;
+		// m_currentChatItem.UIElemIndex = m_uiIndex;
+		m_ptStart.x = 0;
+		m_ptStart.y = 0;
+		// m_uiIndex is index of insertion for 
+		// we will try to eliminate use of return value for this function
+		yItemDiff = CreatePaintElement(chatItem);
+	}
+	else if (it == m_vChatRecords.end()) {
+		m_uiIndex = chatUIElements.size();
+		m_currentChatItem.UIElemIndex = m_uiIndex;
+		ptStart.y = chatUIElements.at(m_uiIndex-3).ptStart.y + chatUIElements.at(m_uiIndex-3).size.cy+m_yCharChatText;
+		yItemDiff = CreatePaintElement(m_currentChatItem, m_uiIndex, recordIndex);
+	}
+	else {
+		m_uiIndex = m_currentChatItem.UIElemIndex = it->UIElemIndex;
+		ptStart = chatUIElements[m_uiIndex].ptStart;
+		yItemDiff = CreatePaintElement(m_currentChatItem, m_uiIndex, recordIndex);
+	}
+
+
+	int v_index = it - chatRecords.begin() + 1;
+	chatRecords.insert( it, m_currentChatItem ); // insert before iterator it
+	// std::vector<CHATBOX_ITEM>::iterator v_it = 
+	for (; v_index < (int)chatRecords.size(); v_index++) {
+		chatRecords[v_index].UIElemIndex += m_uiIndex - m_currentChatItem.UIElemIndex;
+	}*/
+	return yItemDiff;
+}
+
 // Update elements for UI
 // Each raw element can be output to the display using single textout or drawbitmap call
-int CChatControl::AddChatItemToPaintElements(CHATBOX_ITEM& chatItem, int& indexOfInsertion, int recordIndex) {
+int CChatControl::CreatePaintElement(CHATBOX_ITEM& chatItem) {
 	// pDC must be null for continueing
-	if (pDC)
+	if (m_pDC)
 		return 0;
 	// Get the device context
-    pDC = GetDC();
+	m_pDC = GetDC();
 
-	// get clip rectangle and save as points
-	// this causes trouble for minimize
+	// get clip rectangle and save it
+		//  concern: this causes trouble for minimize if controls are moved
 	CRect rcClip;
-	pDC->GetClipBox(&rcClip);
-	ptClipStart = rcClip.TopLeft();		// draw from this point
-
-	ptEnd = rcClip.BottomRight();		// this is the limiting point
+	m_pDC->GetClipBox(&rcClip);
+	m_ptClipStart = rcClip.TopLeft();		// draw from this point
+	m_ptEnd = rcClip.BottomRight();		// this is the limiting point
 	// ptEnd is only for chat text (not datetime or heading text or other elements)
-	int resWidth = timeWidth + deliveryStatusWidth;
-	if (scrollbarEnabled == false)
-		resWidth += scrollbarWidth;
-	ptEnd.x -= resWidth;		// for field type Time don't use ptEnd
-	cxChatText = ptEnd.x - ptClipStart.x;		// for field type Time use this instead
+	int resWidth = m_cxTimeWidth + m_cxDeliveryStatusWidth;
+	if (m_bScrollbarEnabled == false)
+		resWidth += m_cxScrollbarWidth;
+	m_ptEnd.x -= resWidth;		// for field type Time don't use ptEnd
+	m_cxChatText = m_ptEnd.x - m_ptClipStart.x;		// for field type Time use this instead
 
-	int preYItem = yItem;
-	yItem += AddPaintElement(chatItem.timedate.Format(_T("%B %d, %Y")), FieldDateType, indexOfInsertion, recordIndex); 	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
-	
-	yItem += AddPaintElement(chatItem.user_name, FieldNameType, indexOfInsertion, recordIndex);
+	int preYItem = m_yItem;
+	m_yItem += AddPaintElement(chatItem, FieldDateType); 	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
+	m_yItem += AddPaintElement(chatItem, FieldNameType);
 	
 	// will add 0 anyway, but this y Offset will be added by AddPaintElement for FieldTimeType
-	yItem += AddPaintElement(chatItem.message, FieldMessageType, indexOfInsertion, recordIndex);
-	// increment is handled internally for text
-	yItem += AddPaintElement(chatItem.send_status, indexOfInsertion, recordIndex);
-	indexOfInsertion++;
-	yItem += AddPaintElement(chatItem.timedate.Format(_T("%I:%M:%S %p")), FieldTimeType, indexOfInsertion, recordIndex);	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
-	indexOfInsertion++;
+	m_yItem += AddPaintElement(chatItem, FieldMessageType);
+	m_yItem += AddPaintElement(chatItem, FieldTimeType);	// ref: http://msdn.microsoft.com/en-us/library/29btb3sw.aspx & http://msdn.microsoft.com/en-us/library/fe06s4ak.aspx
+	m_yItem += AddPaintElement(chatItem, FieldDeliveryStatusType);
+
     // Free the device context. 
-    ReleaseDC(pDC);
-	pDC = NULL;
-	return (yItem  - preYItem);
+    ReleaseDC(m_pDC);
+	m_pDC = NULL;
+	return (m_yItem  - preYItem);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // UI Paint functions start
-int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType, int& indexOfInsertion, int recordIndex) {
+int CChatControl::AddPaintElement(CHATBOX_ITEM& chatItem, CHATBOX_FIELD_TYPE strType) {
+	std::vector<CHATBOX_ELEMENT> &vUIElements = chatItem.vUIElements;
 	// logic derived from drawElement
 	switch(strType) {
 	case FieldDateType:
 	{
+		CString sCurrentDate = chatItem.timedate.Format(_T("%B %d, %Y"));
+		CString csPreviousDate;		// previous date
+		if (m_iChatItemInsertionIndex > 0)
+			csPreviousDate = m_vChatRecords[m_iChatItemInsertionIndex-1].timedate.Format(_T("%B %d, %Y"));
 		// set date font
-		if (pOldFont == NULL)
-			pOldFont = pDC->SelectObject(&dateFont);
+		if (m_pOldFont == NULL)
+			m_pOldFont = m_pDC->SelectObject(&m_dateFont);
 		else
-			pDC->SelectObject(&dateFont);
-		int preY = ptStart.y;
+			m_pDC->SelectObject(&m_dateFont);
+		int preY = m_ptStart.y;
 		// add vertical space from second time
-		if (!dateText.IsEmpty() && dateText != gStr)
-			ptStart.y += yCharDate;
+		if (!csPreviousDate.IsEmpty() && sCurrentDate != csPreviousDate)
+			m_ptStart.y += m_yCharDate;
 
 		// calculate dimension only if different
-		if (dateText != gStr) {
+		if (sCurrentDate != csPreviousDate) {
 			// get extent of heading Text
-			CSize size = pDC->GetOutputTextExtent(gStr);
+			CSize size = m_pDC->GetOutputTextExtent(sCurrentDate);
 
 			// add vertical space between chat items when headingText is different
-			dateText = gStr;
-			CHATBOX_ELEMENT tmp = { ElemDateType, dateText, ptStart, size, recordIndex };
+			CHATBOX_ELEMENT tmp = { ElemDateType, sCurrentDate, m_ptStart, size };
 			//chatUIElements.push_back(tmp);
-			chatUIElements.insert(chatUIElements.begin()+indexOfInsertion, tmp);		 //ref: http://stackoverflow.com/questions/671423/c-stl-vectors-get-iterator-from-index
-			indexOfInsertion++;
-			ptStart.y += yCharDate;
+			vUIElements.push_back(tmp);		 //ref: http://stackoverflow.com/questions/671423/c-stl-vectors-get-iterator-from-index
+			m_ptStart.y += m_yCharDate;
 		}
-		return (ptStart.y-preY);
+		return (m_ptStart.y-preY);
 	}
 	case FieldNameType:
-	{	// set name heading font
-		if (pOldFont == NULL)
-			pOldFont = pDC->SelectObject(&headingFont);
+	{
+		CString csPreviousName;		// previous date
+		if (m_iChatItemInsertionIndex > 0)
+			csPreviousName = m_vChatRecords[m_iChatItemInsertionIndex-1].sUserName;
+
+		// set name heading font
+		if (m_pOldFont == NULL)
+			m_pOldFont = m_pDC->SelectObject(&m_headingFont);
 		else
-			pDC->SelectObject(&headingFont);
-		int preY = ptStart.y;
+			m_pDC->SelectObject(&m_headingFont);
+		int preY = m_ptStart.y;
 		// add space from second time
-		if (!headingText.IsEmpty() && headingText != gStr)
-			ptStart.y += yCharHeading/2;
+		if (!csPreviousName.IsEmpty() && csPreviousName != chatItem.sUserName)
+			m_ptStart.y += m_yCharHeading/2;
 
 		// int res = 0;
 		// draw only if different
-		if (headingText != gStr) {
+		if (csPreviousName != chatItem.sUserName) {
 			// get extent of heading Text
-			CSize size = pDC->GetOutputTextExtent(gStr);
+			CSize size = m_pDC->GetOutputTextExtent(chatItem.sUserName);
 
 			// add vertical space between chat items when headingText is different
-			headingText = gStr;
-			CHATBOX_ELEMENT tmp = { ElemNameType, headingText, ptStart, size };
+			CHATBOX_ELEMENT tmp = { ElemNameType, chatItem.sUserName, m_ptStart, size };
 			//chatUIElements.push_back(tmp);
-			chatUIElements.insert(chatUIElements.begin()+indexOfInsertion, tmp);
-			indexOfInsertion++;
-			ptStart.y += yCharHeading;
+			vUIElements.push_back(tmp);		 //ref: http://stackoverflow.com/questions/671423/c-stl-vectors-get-iterator-from-index
+			m_ptStart.y += m_yCharHeading;
 		}
-		return (ptStart.y-preY);
+		return (m_ptStart.y-preY);
 	}
 	case FieldMessageType:
 	{
 		// set chat text font
-		pDC->SelectObject(textFont);
-		CPoint oldPoint = ptStart;
+		m_pDC->SelectObject(m_textFont);
+		CPoint oldPoint = m_ptStart;
 
 		// draw text with emo if exists
 		// clip width is lessed by date time clip
 		// use variable cyChatItem to store the height, have to add after drawing date time
 		// DrawMessageEmo does/should not touch draw ending point, it should work with a copy of ptEnd
-		cyChatItem = DrawMessageEmo(gStr, indexOfInsertion, recordIndex);
-		ptStart = oldPoint;
-		return cyChatItem;
+		m_cyChatItem = DrawMessageEmo(chatItem.sMessage);
+		m_ptStart = oldPoint;
+		return m_cyChatItem;
 	}
 	case FieldTimeType:
 	{
+		CString sCurrentTime = chatItem.timedate.Format(_T("%I:%M:%S %p"));		// current item's time element
 		// set font for time
-		if (pOldFont == NULL)
-			pOldFont = pDC->SelectObject(&timeFont);
+		if (m_pOldFont == NULL)
+			m_pOldFont = m_pDC->SelectObject(&m_timeFont);
 		else
-			pDC->SelectObject(&timeFont);
+			m_pDC->SelectObject(&m_timeFont);
 
 		// get extent of time Text
-		CSize size = pDC->GetOutputTextExtent(gStr);
+		CSize size = m_pDC->GetOutputTextExtent(sCurrentTime);
 		// does ChatUIPainter has knowledge on where the starting drawing point of time would be??
 		// let' see we have 
-		CPoint ptTime = CPoint(cxChatText, ptStart.y);
-		CHATBOX_ELEMENT tmp = { ElemTimeType, gStr,  ptTime, size };
-		// chatUIElements.push_back(tmp);
-		chatUIElements.insert(chatUIElements.begin()+indexOfInsertion, tmp);
+		CPoint ptTime = CPoint(m_cxChatText, m_ptStart.y);
+		CHATBOX_ELEMENT tmp = { ElemTimeType, sCurrentTime, ptTime, size };
+		vUIElements.push_back(tmp);
+		return 0;
+	}
+	case FieldDeliveryStatusType:
+	{
+		// set font for time
+		if (m_pOldFont == NULL)
+			m_pOldFont = m_pDC->SelectObject(&m_timeFont);
+		else
+			m_pDC->SelectObject(&m_timeFont);
+
+		CPoint delivPtStart(m_cxChatText+m_cxTimeWidth+1, m_ptStart.y);
+		CHATBOX_ELEMENT tmp = { ElemDeliveryStatusType, TEXT(""), delivPtStart, CPoint(m_cxDeliveryStatusWidth, m_cxDeliveryStatusWidth) };
+		vUIElements.push_back(tmp);
 		// got it from previous message drawing calculation
-		ptStart.y += cyChatItem;
+		m_ptStart.y += m_cyChatItem;
 		return 0;
 	}
 	default:
@@ -733,7 +772,7 @@ int CChatControl::AddPaintElement(const CString gStr, CHATBOX_FIELD_TYPE strType
 	}
 }
 
-int CChatControl::AddPaintElement(MESSAGE_SEND_STATUS status, int indexOfInsertion, int recordIndex) {
+/* int CChatControl::AddPaintElement(MESSAGE_SEND_STATUS status, int indexOfInsertion, int recordIndex) {
 	// logic derived from drawElement
 	// set font not required
 	CPoint delivPtStart(cxChatText+timeWidth+1, ptStart.y);
@@ -743,11 +782,11 @@ int CChatControl::AddPaintElement(MESSAGE_SEND_STATUS status, int indexOfInserti
 	// not changing ptStart for delivery status print
 	//ptStart.x += cch.cx;
 	return 0;
-}
+} */
 
 // helper function for DrawElement
 // efficient implementation of emot icon code matching
-int CChatControl::DrawMessageEmo(CString message, int& indexOfInsertion, int recordIndex)
+int CChatControl::DrawMessageEmo(CString message)
 {
 	if (message.IsEmpty())
 		return 0;
@@ -761,35 +800,35 @@ int CChatControl::DrawMessageEmo(CString message, int& indexOfInsertion, int rec
 	// starting charset of emot icons ":;>8O3L(="
 
 	CString token;
-	int YPre = ptStart.y;
+	int YPre = m_ptStart.y;
 	enum TextEmoType {NONE, BITMAP, TEXTSTR};
 	TextEmoType PreviousItemType = NONE;
 	int startPos = 0;
 	int emoPos = 0;
 	int emoIndex = 0;
-	while ((emoPos = FindEmoCode(startPos, message, &emoIndex)) >= 0) {
+	while ((emoPos = FindEmoCode(startPos, message, emoIndex)) >= 0) {
 		// emo found, draw now
 		// whether there is any text before emot icon
 		if (emoPos>startPos) {
 			token = message.Mid(startPos, emoPos-startPos);
 			if (PreviousItemType == BITMAP)
-				ptStart.x += cxChatTextHSpace;
-			DrawChatText(token, indexOfInsertion);
+				m_ptStart.x += m_cxChatTextHSpace;
+			DrawChatText(token);
 			PreviousItemType = TEXTSTR;
 		}
 
 		// add vspace before and after emo, to solve spacing problem of text after emo
 		if (PreviousItemType == TEXTSTR)
-			ptStart.x += cxChatTextHSpace;
-		VirtualDrawEmotIcon(emoIndex, indexOfInsertion, recordIndex);
+			m_ptStart.x += m_cxChatTextHSpace;
+		VirtualDrawEmotIcon(emoIndex);
 		CString tmpDbg(pEmoCodesList[emoIndex]);
 		startPos = emoPos + _tcslen(pEmoCodesList[emoIndex]);
 	}
 	if ( message.GetLength()-startPos > 0) {
 		token = message.Mid(startPos, message.GetLength()-startPos);			// ref: http://msdn.microsoft.com/en-us/library/aa300543(v=vs.60).aspx
 		if (PreviousItemType == BITMAP)
-			ptStart.x += cxChatTextHSpace;
-		DrawChatText(token, indexOfInsertion);
+			m_ptStart.x += m_cxChatTextHSpace;
+		DrawChatText(token);
 	}
 	// draw left over text
 	
@@ -836,14 +875,14 @@ int CChatControl::DrawMessageEmo(CString message, int& indexOfInsertion, int rec
 			ptStart.x += cxChatTextHSpace;
 		DrawChatText(token);
 	}*/
-	return (ptStart.y - YPre + yCharChatText);		// add Single Line Height to move to next row
+	return (m_ptStart.y - YPre + m_yCharChatText);		// add Single Line Height to move to next row
 }
 
 /*
 	Author		:		Saint Atique
 				:		returns -1 if not found
 */
-int CChatControl::FindEmoCode(int startIndex, CString str, int* foundEmoIndex) {
+int CChatControl::FindEmoCode(int startIndex, CString str, int& foundEmoIndex) {
 	TCHAR* startEmoChar = _T(":;>8O3L(=");
 	int nStartEmoChar = 9;
 	int nEmoCount = m_pMainDlg->GetEmoCount();
@@ -903,13 +942,13 @@ int CChatControl::FindEmoCode(int startIndex, CString str, int* foundEmoIndex) {
 			}
 			// emo matched
 			if (k<nEmoCount) {
-				*foundEmoIndex = emoCodeMapToIndex[k];
+				foundEmoIndex = emoCodeMapToIndex[k];
 				return i;
 			}
 
 		}
 	}
-	*foundEmoIndex = -1;
+	foundEmoIndex = -1;
 	return -1;
 }
 
@@ -917,7 +956,7 @@ int CChatControl::FindEmoCode(int startIndex, CString str, int* foundEmoIndex) {
 // output: output is sent via CPoint* pointer to modify to next starting point of drawing
 //		only adds required value to get correct next draw point without adding extra height
 //		it should not add extra single line height
-void CChatControl::DrawChatText(CString str, int& indexOfInsertion)
+void CChatControl::DrawChatText(CString str)
 {
 	if (str.IsEmpty())
 		return ;
@@ -932,10 +971,10 @@ void CChatControl::DrawChatText(CString str, int& indexOfInsertion)
 		// get substring before newline
 		if (n-startPos > 0) {
 			tokStr = str.Mid(startPos, n-startPos);
-			VirtualDrawTextMultiLine(tokStr, indexOfInsertion);
+			VirtualDrawTextMultiLine(tokStr);
 		}
-		ptStart.y += yCharChatText;
-		ptStart.x = cxChatTextHSpace;
+		m_ptStart.y += m_yCharChatText;
+		m_ptStart.x = m_cxChatTextHSpace;
 
 		startPos = n + newline.GetLength();
 		n = str.Find(newline, startPos);
@@ -943,7 +982,7 @@ void CChatControl::DrawChatText(CString str, int& indexOfInsertion)
 
 	if (str.GetLength()-startPos > 0) {
 		tokStr = str.Mid(startPos, str.GetLength()-startPos);
-		VirtualDrawTextMultiLine(tokStr, indexOfInsertion);
+		VirtualDrawTextMultiLine(tokStr);
 	}
 }
 
@@ -954,7 +993,7 @@ void CChatControl::DrawChatText(CString str, int& indexOfInsertion)
 // This handler loads a bitmap from system resources, 
 // centers it in the view, and uses BitBlt() to paint the bitmap 
 // bits. 
-void CChatControl::VirtualDrawEmotIcon(int emoIndex, int& indexOfInsertion, int recordIndex)
+void CChatControl::VirtualDrawEmotIcon(int emoIndex)
 {
 	/*// load IDB_BMP_SMILE01 from our resources
 	CBitmap bmp;
@@ -972,14 +1011,14 @@ void CChatControl::VirtualDrawEmotIcon(int emoIndex, int& indexOfInsertion, int 
 		//CSize cch(bmpInfo.bmWidth, bmpInfo.bmHeight);		// ref: http://msdn.microsoft.com/en-us/library/xt679a2s(v=vs.110).aspx
 		CSize cch(24, 24);
 		// check if drawing is not possible
-		CPoint ptRes = ptEnd - (ptStart+cch);			// ref: http://msdn.microsoft.com/en-us/library/t792xy69(v=vs.110).aspx
+		CPoint ptRes = m_ptEnd - (m_ptStart+cch);			// ref: http://msdn.microsoft.com/en-us/library/t792xy69(v=vs.110).aspx
 		// not possible in single line
 		if (ptRes.x < 0) {
 			// move to next line
 			// there is still space for next line
 			//if (ptRes.y >= cch.cy) {
-				ptStart.x =  cxChatTextHSpace;
-				ptStart.y += yCharChatText;
+				m_ptStart.x =  m_cxChatTextHSpace;
+				m_ptStart.y += m_yCharChatText;
 			/*}
 			else {
 				// AfxMessageBox(TEXT("Not enough space to draw bitmap!"), MB_OK);
@@ -989,10 +1028,8 @@ void CChatControl::VirtualDrawEmotIcon(int emoIndex, int& indexOfInsertion, int 
 		
 		CString emoIndexStr;
 		emoIndexStr.Format(TEXT("%d"), emoIndex);
-		CHATBOX_ELEMENT tmp = { ElemEmotIconType, emoIndexStr, ptStart, cch, recordIndex };
-		//chatUIElements.push_back(tmp);
-		chatUIElements.insert(chatUIElements.begin()+indexOfInsertion, tmp);
-		indexOfInsertion++;
+		CHATBOX_ELEMENT tmp = { ElemEmotIconType, emoIndexStr, m_ptStart, cch };
+		m_vChatRecords[m_iChatItemInsertionIndex].vUIElements.push_back(tmp);
 
 		/* if we want image scaling, ref: 
 		// dcMemory.SetStretchBltMode(HALFTONE);
@@ -1001,7 +1038,7 @@ void CChatControl::VirtualDrawEmotIcon(int emoIndex, int& indexOfInsertion, int 
 		img.StretchBlt(dcMemory.m_hDC, 0, 0, limitRect, dimy, 0, 0, img1.GetWidth(), img1.GetHeight(), SRCCOPY);		ref: http://stackoverflow.com/questions/2339702/setting-resized-bitmap-file-to-an-mfc-picture-control
 		and ref: http://social.msdn.microsoft.com/Forums/vstudio/en-US/8a636954-5a3a-4a10-9e84-386ce057b2d9/colour-problems-when-scaling-a-bitmap-with-cdcstretchblt */	
 
-		ptStart.x += cch.cx;
+		m_ptStart.x += cch.cx;
 	/*}
 	else
 	{
@@ -1011,22 +1048,20 @@ void CChatControl::VirtualDrawEmotIcon(int emoIndex, int& indexOfInsertion, int 
 }
 
 // multiline drawing using drawText
-bool CChatControl::VirtualDrawTextMultiLine(CString str, int& indexOfInsertion)
+bool CChatControl::VirtualDrawTextMultiLine(CString str)
 {
 	// check if draw is possible in single line
-	CSize cch = pDC->GetOutputTextExtent(str);
-	CPoint ptRes = ptEnd - (ptStart+cch);			// ref: http://msdn.microsoft.com/en-us/library/t792xy69(v=vs.110).aspx
+	CSize cch = m_pDC->GetOutputTextExtent(str);
+	CPoint ptRes = m_ptEnd - (m_ptStart+cch);			// ref: http://msdn.microsoft.com/en-us/library/t792xy69(v=vs.110).aspx
 	// possible in single line
 	// if (ptRes.x >= 0 && ptRes.y >= 0) {
 	// we want to scroll, do not restrict anymore on y
 	if (ptRes.x >= 0) {
-		CHATBOX_ELEMENT tmp = { ElemMessageType, str, ptStart, cch };
-		// chatUIElements.push_back(tmp);
-		chatUIElements.insert(chatUIElements.begin() + indexOfInsertion, tmp);
-		indexOfInsertion++;
+		CHATBOX_ELEMENT tmp = { ElemMessageType, str, m_ptStart, cch };
+		m_vChatRecords[m_iChatItemInsertionIndex].vUIElements.push_back(tmp);
 
 		// pDC->TextOut(ptStart.x, ptStart.y, str);
-		ptStart.x += cch.cx;
+		m_ptStart.x += cch.cx;
 		return true;
 	}
 
@@ -1045,21 +1080,19 @@ bool CChatControl::VirtualDrawTextMultiLine(CString str, int& indexOfInsertion)
 			firstLine = false;
 		else {
 			// beginning x of next line
-			ptStart.x = cxChatTextHSpace;
+			m_ptStart.x = m_cxChatTextHSpace;
 			// next line y axis
 			// ptStart.y += cch.cy;
-			ptStart.y += yCharChatText;
+			m_ptStart.y += m_yCharChatText;
 		}
 		// if we are inside clip we can proceed to calculate and draw, otherwise recursion function will be unpredictable
 		// as context for component function IsFittableInRectangle becomes invalid
 		// no more invalid, we are only calculating not drawing in an invalid rectangle
 		line = ExtractFittableLineFromStr(str);
-		cch = pDC->GetOutputTextExtent(line);
+		cch = m_pDC->GetOutputTextExtent(line);
 
-		CHATBOX_ELEMENT tmp = { ElemMessageType, line, ptStart, cch };
-		// chatUIElements.push_back(tmp);
-		chatUIElements.insert(chatUIElements.begin() + indexOfInsertion, tmp);
-		indexOfInsertion++;
+		CHATBOX_ELEMENT tmp = { ElemMessageType, line, m_ptStart, cch };
+		m_vChatRecords[m_iChatItemInsertionIndex].vUIElements.push_back(tmp);
 
 		str = str.Mid(line.GetLength());
 	}
@@ -1068,7 +1101,7 @@ bool CChatControl::VirtualDrawTextMultiLine(CString str, int& indexOfInsertion)
 
 	if (! line.IsEmpty()) {
 		// for correct calculation of extent
-		ptStart.x += cch.cx;
+		m_ptStart.x += cch.cx;
 	}
 	return true;
 }
@@ -1113,8 +1146,8 @@ int CChatControl::GetFittablePositionRecursive(const CString str, int iMin, int 
 bool CChatControl::IsFittableInRectangle(const CString gStr, const int index) {
 	// index is 1 less than count/length
 	CString line = gStr.Mid(0, index+1);
-	CSize cch = pDC->GetOutputTextExtent(line);
-	CPoint ptRes = ptEnd - (ptStart+cch);
+	CSize cch = m_pDC->GetOutputTextExtent(line);
+	CPoint ptRes = m_ptEnd - (m_ptStart+cch);
 	// if (ptRes.x >= 0 && ptRes.y >= 0) {
 	if (ptRes.x >= 0) {  // y check disabled for scrolling
 		return true;
@@ -1131,7 +1164,7 @@ void CChatControl::PaintUIElements() {
 	// startUIElemIndex = -1;
 	// endUIElemIndex = -1;
 	// save previous color
-	COLORREF oldColor = pDC->GetTextColor();
+	COLORREF oldColor = m_pDC->GetTextColor();
 
 	// To detect new line
 	//int preY=ptStart.y;		// dummy initialization ptStart.y might not be necessary
@@ -1144,189 +1177,183 @@ void CChatControl::PaintUIElements() {
 
 	// ** implement drawing according to co-ordinates of update region
 	//  && endUIElemIndex == -1; ) && (i<endUIElemIndex+1)
-	for (int i=0; i < (int) chatUIElements.size() && rowDrawComplete==false; i++)
-	{
-		CHATBOX_ELEMENT curChatElement = chatUIElements.at(i);
-		curChatElement.ptStart.y -=  yScrollAmount;
+	for (int i=0; i < (int) m_vChatRecords.size() && rowDrawComplete==false; i++) {
+		for (int j=0; j < (int) m_vChatRecords[i].vUIElements.size() && rowDrawComplete==false; j++) {
+			CHATBOX_ELEMENT curChatElement = m_vChatRecords[i].vUIElements[j];
+			curChatElement.ptStart.y -=  m_yScrollAmount;
 
-		switch(curChatElement.type) {
-		case ElemDateType:
-		{	
-			if (IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart+curChatElement.size) == false) {
-				if (drawStarted)
-					isInsideRect = false;
+			switch(curChatElement.type) {
+			case ElemDateType:
+			{	
+				if (IsPointInsideClipRectangle(m_ptClipStart, m_ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(m_ptClipStart, m_ptEnd, curChatElement.ptStart+curChatElement.csz) == false) {
+					if (drawStarted)
+						isInsideRect = false;
+					break;
+				}
+				// set date color
+				m_pDC->SetTextColor(RGB(4,95,192));
+				// set background color
+				COLORREF oldBkColor = m_pDC->SetBkColor(RGB(170,194,154));
+				// set date font
+				if (m_pOldFont == NULL)
+					m_pOldFont = m_pDC->SelectObject(&m_dateFont);
+				else
+					m_pDC->SelectObject(&m_dateFont);
+				// set text align
+				// UINT oldTextAlignment = pDC->SetTextAlign(TA_CENTER | TA_TOP | TA_NOUPDATECP);
+				int offsetX = ((m_ptEnd.x + m_cxTimeWidth - m_ptClipStart.x) - curChatElement.csz.cx)/2;
+				// pDC->TextOut(curChatElement.ptStart.x+offsetX, curChatElement.ptStart.y, curChatElement.text);
+				// pDC->DrawText(curChatElement.text, CRect(ptClipStart,ptEnd), DT_CENTER);
+				m_pDC->ExtTextOut(curChatElement.ptStart.x+offsetX, curChatElement.ptStart.y, ETO_OPAQUE, CRect(m_ptClipStart.x, curChatElement.ptStart.y, m_ptEnd.x+m_cxTimeWidth+m_cxDeliveryStatusWidth+m_cxScrollbarWidth, curChatElement.ptStart.y+m_yCharDate), curChatElement.sText, NULL);
+				// pDC->SetTextAlign(oldTextAlignment);
+				m_pDC->SetBkColor(oldBkColor);
+				drawStarted = true;
 				break;
 			}
-			// set date color
-			pDC->SetTextColor(RGB(4,95,192));
-			// set background color
-			COLORREF oldBkColor = pDC->SetBkColor(RGB(170,194,154));
-			// set date font
-			if (pOldFont == NULL)
-				pOldFont = pDC->SelectObject(&dateFont);
-			else
-				pDC->SelectObject(&dateFont);
-			// set text align
-			// UINT oldTextAlignment = pDC->SetTextAlign(TA_CENTER | TA_TOP | TA_NOUPDATECP);
-			int offsetX = ((ptEnd.x + timeWidth - ptClipStart.x) - curChatElement.size.cx)/2;
-			// pDC->TextOut(curChatElement.ptStart.x+offsetX, curChatElement.ptStart.y, curChatElement.text);
-			// pDC->DrawText(curChatElement.text, CRect(ptClipStart,ptEnd), DT_CENTER);
-			pDC->ExtTextOut(curChatElement.ptStart.x+offsetX, curChatElement.ptStart.y, ETO_OPAQUE, CRect(ptClipStart.x, curChatElement.ptStart.y, ptEnd.x+timeWidth+deliveryStatusWidth+scrollbarWidth, curChatElement.ptStart.y+yCharDate), curChatElement.text, NULL);
-			// pDC->SetTextAlign(oldTextAlignment);
-			pDC->SetBkColor(oldBkColor);
-			drawStarted = true;
-			break;
-		}
-		case ElemNameType:
-		{	
-			if (isAlternateNameColor) {
-				isAlternateNameColor = false;
-			}
-			else {
-				isAlternateNameColor = true;
-			}
-			if (IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart+curChatElement.size) == false) {
-				if (drawStarted)
-					isInsideRect = false;
+			case ElemNameType:
+			{	
+				if (isAlternateNameColor) {
+					isAlternateNameColor = false;
+				}
+				else {
+					isAlternateNameColor = true;
+				}
+				if (IsPointInsideClipRectangle(m_ptClipStart, m_ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(m_ptClipStart, m_ptEnd, curChatElement.ptStart+curChatElement.csz) == false) {
+					if (drawStarted)
+						isInsideRect = false;
+					break;
+				}
+
+				if (isAlternateNameColor)
+					m_pDC->SetTextColor(RGB(136,97,11));
+				else
+					m_pDC->SetTextColor(RGB(11,136,99));		// ref: http://msdn.microsoft.com/en-us/library/vstudio/wf4k5sew.aspx
+
+				// we are remoing backgroud color for name
+				// set name heading font
+				if (m_pOldFont == NULL)
+					m_pOldFont = m_pDC->SelectObject(&m_headingFont);
+				else
+					m_pDC->SelectObject(&m_headingFont);
+
+				m_pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.sText);
+
+				m_pDC->SetTextColor(oldColor);
+				drawStarted = true;
 				break;
 			}
-
-			if (isAlternateNameColor)
-				pDC->SetTextColor(RGB(136,97,11));
-			else
-				pDC->SetTextColor(RGB(11,136,99));		// ref: http://msdn.microsoft.com/en-us/library/vstudio/wf4k5sew.aspx
-
-			// we are remoing backgroud color for name
-			// set name heading font
-			if (pOldFont == NULL)
-				pOldFont = pDC->SelectObject(&headingFont);
-			else
-				pDC->SelectObject(&headingFont);
-
-			pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.text);
-
-			pDC->SetTextColor(oldColor);
-			drawStarted = true;
-			break;
-		}
-		case ElemMessageType:
-		{
-			if (IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart+curChatElement.size) == false) {
-				if (drawStarted)
-					isInsideRect = false;
-				break;
-			}
-			// set chat text font
-			if (pOldFont == NULL)
-				pOldFont = pDC->SelectObject(&textFont);
-			else
-				pDC->SelectObject(&textFont);
-
-			pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.text);
-			drawStarted = true;
-			break;
-		}
-		case ElemEmotIconType:
-		{
-			if (IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart+curChatElement.size) == false) {
-				if (drawStarted)
-					isInsideRect = false;
-				break;
-			}
-			// have to implement selection according to index
-			// requires implementation on VirtualDrawEmotIcons as well
-			CBitmap bmp;
-			// if (bmp.LoadBitmap(IDB_BMP_SMILE01))
-			/*// for PNG images
-			CImage image;
-			image.LoadFromResource(AfxGetInstanceHandle(), IDB_PNG_SMILE01);
-			//image.AlphaBlend(pDC, curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, 0, 0, curChatElement.size.cx, curChatElement.size.cy);
-			//image.AlphaBlend(pDC->GetSafeHdc(), curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy);
-			image.AlphaBlend(pDC->GetSafeHdc(), curChatElement.ptStart.x, curChatElement.ptStart.y, 255, AC_SRC_OVER);
-			/*CPngImage pngImage;
-			if (pngImage.Load(IDB_PNG_SMILE01)) {
-				pngImage.transp
-			}
-			*/
-
-			//if (bmp.Attach(pngImage.Detach()))// ref: http://msdn.microsoft.com/en-us/library/97h2k0zx.aspx 
-			if (bmp.LoadBitmap(IDB_BMP_EMOTICON_01+_ttoi(curChatElement.text)))		// _ttoi: http://msdn.microsoft.com/en-us/library/yd5xkb5c.aspx
+			case ElemMessageType:
 			{
-				// COLORREF oldBkColor = pDC->SetBkColor(TRANSPARENT);
-				// Create an in-memory DC compatible with the display DC we're using to paint
-				/*COLORREF oldBkColor;
-				if (isAlternate) {
-					oldBkColor = pDC->SetBkColor(RGB(170,194,154));
-				}*/
-				CDC dcMemory;
-				dcMemory.CreateCompatibleDC(pDC);
-				// Select the bitmap into the in-memory DC
-				CBitmap* pOldBitmap = dcMemory.SelectObject(&bmp);
-				// Copy the bits from the in-memory DC into the on-screen DC to actually do the painting.
-				pDC->BitBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, &dcMemory, 0, 0, SRCCOPY);
-				// transparency not working yet
-				// pDC->TransparentBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, &dcMemory, 0, 0, curChatElement.size.cx, curChatElement.size.cy, RGB(255,255,255));
-				dcMemory.SelectObject(pOldBitmap);
-				// pDC->SetBkColor(oldBkColor);
-			}
-			drawStarted = true;
-			break;
-		}
-		case ElemTimeType:
-		{
-			if (IsPointInsideClipRectangle(ptClipStart+CSize(cxChatText, 0), ptEnd+CSize(timeWidth, 0), curChatElement.ptStart) == false && IsPointInsideClipRectangle(ptClipStart+CSize(cxChatText, 0), ptEnd+CSize(timeWidth, 0), curChatElement.ptStart+curChatElement.size) == false) {
-				// but don't break loop setting 'isInsideRect' because time can be out of rectangle for multiline chat text still next item can be inside rect
+				if (IsPointInsideClipRectangle(m_ptClipStart, m_ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(m_ptClipStart, m_ptEnd, curChatElement.ptStart+curChatElement.csz) == false) {
+					if (drawStarted)
+						isInsideRect = false;
+					break;
+				}
+				// set chat text font
+				if (m_pOldFont == NULL)
+					m_pOldFont = m_pDC->SelectObject(&m_textFont);
+				else
+					m_pDC->SelectObject(&m_textFont);
+
+				m_pDC->TextOut(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.sText);
+				drawStarted = true;
 				break;
 			}
-
-			// not checking clip now, probably later
-			// set font for time
-			if (pOldFont == NULL)
-				pOldFont = pDC->SelectObject(&timeFont);
-			else
-				pDC->SelectObject(&timeFont);
-
-			// set text align
-			UINT oldTextAlignment = pDC->SetTextAlign(TA_RIGHT);
-			pDC->TextOut(ptEnd.x+timeWidth, curChatElement.ptStart.y, curChatElement.text);
-			pDC->SetTextAlign(oldTextAlignment);
-			drawStarted = true;
-			if (isInsideRect == false)
-				rowDrawComplete = true;
-			break;
-		}
-		case ElemDeliveryStatusType:
-		{
-			/*if (IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart+curChatElement.size) == false) {
-				if (drawStarted)
-					isInsideRect = false;
-				break;
-			}*/
-			CBitmap bmp;
-			if (bmp.LoadBitmap(IDB_BMP_DELIV_STATUS_01))
+			case ElemEmotIconType:
 			{
-				// COLORREF oldBkColor = pDC->SetBkColor(TRANSPARENT);
-				// Create an in-memory DC compatible with the display DC we're using to paint
-				/*COLORREF oldBkColor;
-				if (isAlternate) {
-					oldBkColor = pDC->SetBkColor(RGB(170,194,154));
-				}*/
-				CDC dcMemory; 
-				dcMemory.CreateCompatibleDC(pDC);
-				// Select the bitmap into the in-memory DC
-				CBitmap* pOldBitmap = dcMemory.SelectObject(&bmp);
-				// Copy the bits from the in-memory DC into the on-screen DC to actually do the painting.
-				pDC->BitBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, &dcMemory, 0, 0, SRCCOPY);
-				// transparency not working yet
-				// pDC->TransparentBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, &dcMemory, 0, 0, curChatElement.size.cx, curChatElement.size.cy, RGB(255,255,255));
-				dcMemory.SelectObject(pOldBitmap);
-				// pDC->SetBkColor(oldBkColor);
+				if (IsPointInsideClipRectangle(m_ptClipStart, m_ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(m_ptClipStart, m_ptEnd, curChatElement.ptStart+curChatElement.csz) == false) {
+					if (drawStarted)
+						isInsideRect = false;
+					break;
+				}
+				// have to implement selection according to index
+				// requires implementation on VirtualDrawEmotIcons as well
+				CBitmap bmp;
+				// if (bmp.LoadBitmap(IDB_BMP_SMILE01))
+				/*// for PNG images
+				CImage image;
+				image.LoadFromResource(AfxGetInstanceHandle(), IDB_PNG_SMILE01);
+				//image.AlphaBlend(pDC, curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, 0, 0, curChatElement.size.cx, curChatElement.size.cy);
+				//image.AlphaBlend(pDC->GetSafeHdc(), curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy);
+				image.AlphaBlend(pDC->GetSafeHdc(), curChatElement.ptStart.x, curChatElement.ptStart.y, 255, AC_SRC_OVER);
+				/*CPngImage pngImage;
+				if (pngImage.Load(IDB_PNG_SMILE01)) {
+					pngImage.transp
+				}
+				*/
+
+				//if (bmp.Attach(pngImage.Detach()))// ref: http://msdn.microsoft.com/en-us/library/97h2k0zx.aspx 
+				if (bmp.LoadBitmap(IDB_BMP_EMOTICON_01+_ttoi(curChatElement.sText)))		// _ttoi: http://msdn.microsoft.com/en-us/library/yd5xkb5c.aspx
+				{
+					// COLORREF oldBkColor = pDC->SetBkColor(TRANSPARENT);
+					// Create an in-memory DC compatible with the display DC we're using to paint
+					/*COLORREF oldBkColor;
+					if (isAlternate) {
+						oldBkColor = pDC->SetBkColor(RGB(170,194,154));
+					}*/
+					CDC dcMemory;
+					dcMemory.CreateCompatibleDC(m_pDC);
+					// Select the bitmap into the in-memory DC
+					CBitmap* pOldBitmap = dcMemory.SelectObject(&bmp);
+					// Copy the bits from the in-memory DC into the on-screen DC to actually do the painting.
+					m_pDC->BitBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.csz.cx, curChatElement.csz.cy, &dcMemory, 0, 0, SRCCOPY);
+					// transparency not working yet
+					// pDC->TransparentBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, &dcMemory, 0, 0, curChatElement.size.cx, curChatElement.size.cy, RGB(255,255,255));
+					dcMemory.SelectObject(pOldBitmap);
+					// pDC->SetBkColor(oldBkColor);
+				}
+				drawStarted = true;
+				break;
 			}
-			//drawStarted = true;
-			break;
-		}
-		default:
-			break;
+			case ElemTimeType:
+			{
+				if (IsPointInsideClipRectangle(m_ptClipStart+CSize(m_cxChatText, 0), m_ptEnd+CSize(m_cxTimeWidth, 0), curChatElement.ptStart) == false && IsPointInsideClipRectangle(m_ptClipStart+CSize(m_cxChatText, 0), m_ptEnd+CSize(m_cxTimeWidth, 0), curChatElement.ptStart+curChatElement.csz) == false) {
+					// but don't break loop setting 'isInsideRect' because time can be out of rectangle for multiline chat text still next item can be inside rect
+					break;
+				}
+
+				// not checking clip now, probably later
+				// set font for time
+				if (m_pOldFont == NULL)
+					m_pOldFont = m_pDC->SelectObject(&m_timeFont);
+				else
+					m_pDC->SelectObject(&m_timeFont);
+
+				// set text align
+				UINT oldTextAlignment = m_pDC->SetTextAlign(TA_RIGHT);
+				m_pDC->TextOut(m_ptEnd.x+m_cxTimeWidth, curChatElement.ptStart.y, curChatElement.sText);
+				m_pDC->SetTextAlign(oldTextAlignment);
+				drawStarted = true;
+				break;
+			}
+			case ElemDeliveryStatusType:
+			{
+				/*if (IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart) == false && IsPointInsideClipRectangle(ptClipStart, ptEnd, curChatElement.ptStart+curChatElement.size) == false) {
+					if (drawStarted)
+						isInsideRect = false;
+					break;
+				}*/
+				CBitmap bmp;
+				if (bmp.LoadBitmap(IDB_BMP_DELIV_STATUS_01))
+				{
+					CDC dcMemory; 
+					dcMemory.CreateCompatibleDC(m_pDC);
+					// Select the bitmap into the in-memory DC
+					CBitmap* pOldBitmap = dcMemory.SelectObject(&bmp);
+					// Copy the bits from the in-memory DC into the on-screen DC to actually do the painting.
+					m_pDC->BitBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.csz.cx, curChatElement.csz.cy, &dcMemory, 0, 0, SRCCOPY);
+					// transparency not working yet
+					// pDC->TransparentBlt(curChatElement.ptStart.x, curChatElement.ptStart.y, curChatElement.size.cx, curChatElement.size.cy, &dcMemory, 0, 0, curChatElement.size.cx, curChatElement.size.cy, RGB(255,255,255));
+					dcMemory.SelectObject(pOldBitmap);
+					// pDC->SetBkColor(oldBkColor);
+				}
+				if (isInsideRect == false)
+					rowDrawComplete = true;
+				break;
+			}
+			default:
+				break;
+			}
 		}
 	}
 }
@@ -1346,10 +1373,13 @@ bool IsPointInsideClipRectangle(const CPoint topLeft, const CPoint bottomRight, 
 	return true;
 }
 
-void CChatControl::UpdateNextElementsCordinates(int updateIndex, int yOffset) {
-	std::vector<CHATBOX_ELEMENT>::iterator it;
-	for (it = chatUIElements.begin()+updateIndex; it < chatUIElements.end(); it++) {
-		it->ptStart.y += yOffset;
+void CChatControl::UpdateNextElementsCordinates(int yOffset) {
+	std::vector<CHATBOX_ITEM>::iterator crIter;
+	std::vector<CHATBOX_ELEMENT>::iterator cUIIter;
+	for (crIter = m_vChatRecords.begin()+m_iChatItemInsertionIndex+1; crIter < m_vChatRecords.end(); crIter++) {
+		for (cUIIter = crIter->vUIElements.begin(); cUIIter != crIter->vUIElements.end(); cUIIter++) {
+			cUIIter->ptStart.y += yOffset;
+		}
 	}
 }
 
