@@ -5,10 +5,15 @@
 #include "stdafx.h"
 #include "TestEmoCustomControl.h"
 #include "TestEmoCustomControlDlg.h"
+#include "ChatRecordDB.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+
+CChatRecordDB* g_pChatRecords;
 
 
 // CTestEmoCustomControlApp
@@ -44,13 +49,11 @@ BOOL CTestEmoCustomControlApp::InitInstance()
 	// visual styles.  Otherwise, any window creation will fail.
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
-	// Set this to include all the common control classes you want to use
-	// in your application.
+	// Set this to include all the common control classes you want to use in your application.
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
 	CWinApp::InitInstance();
-
 
 
 	// Standard initialization
@@ -61,6 +64,20 @@ BOOL CTestEmoCustomControlApp::InitInstance()
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+
+	// create database here
+	BOOL bSuccess;
+    bSuccess = FALSE;
+	g_pChatRecords = new CChatRecordDB(&bSuccess);
+
+	//if (!bSuccess || NULL == g_pChatRecords || NULL == g_pChatRecords->Create(NULL, AfxGetInstanceHandle()))
+	if (!bSuccess || NULL == g_pChatRecords || FALSE == g_pChatRecords->Create(NULL, m_hInstance))
+    {
+        delete g_pChatRecords;
+        g_pChatRecords = NULL;
+		return FALSE;
+    }
+
 
 	CTestEmoCustomControlDlg dlg;
 	m_pMainWnd = &dlg;
@@ -80,6 +97,10 @@ BOOL CTestEmoCustomControlApp::InitInstance()
 		TRACE(traceAppMsg, 0, "Warning: dialog creation failed, so application is terminating unexpectedly.\n");
 	}
 
+	if (g_pChatRecords) {
+        delete g_pChatRecords;
+        g_pChatRecords = NULL;
+	}
 
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
