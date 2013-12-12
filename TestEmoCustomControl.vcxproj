@@ -43,6 +43,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);C:\Program Files (x86)\Microsoft SQL Server Compact Edition\v4.0\Include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -103,6 +104,8 @@
   <ItemGroup>
     <ClInclude Include="ChatControl.h" />
     <ClInclude Include="ChatEdit.h" />
+    <ClInclude Include="ChatRecordDB.h" />
+    <ClInclude Include="dbcommon.h" />
     <ClInclude Include="EmoListPopUp.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -113,6 +116,7 @@
   <ItemGroup>
     <ClCompile Include="ChatControl.cpp" />
     <ClCompile Include="ChatEdit.cpp" />
+    <ClCompile Include="ChatRecordDB.cpp" />
     <ClCompile Include="EmoListPopUp.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
