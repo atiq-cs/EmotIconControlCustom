@@ -55,7 +55,6 @@ BOOL CTestEmoCustomControlApp::InitInstance()
 
 	CWinApp::InitInstance();
 
-
 	// Standard initialization
 	// If you are not using these features and wish to reduce the size
 	// of your final executable, you should remove from the following
@@ -68,16 +67,15 @@ BOOL CTestEmoCustomControlApp::InitInstance()
 	// create database here
 	BOOL bSuccess;
     bSuccess = FALSE;
-	g_pChatRecords = new CChatRecordDB(&bSuccess);
+	g_pChatRecords = new CChatRecordDB(bSuccess);
 
 	//if (!bSuccess || NULL == g_pChatRecords || NULL == g_pChatRecords->Create(NULL, AfxGetInstanceHandle()))
-	if (!bSuccess || NULL == g_pChatRecords || FALSE == g_pChatRecords->Create(NULL, m_hInstance))
+	if (!bSuccess || NULL == g_pChatRecords || FALSE == g_pChatRecords->Open(m_hInstance))
     {
         delete g_pChatRecords;
         g_pChatRecords = NULL;
 		return FALSE;
     }
-
 
 	CTestEmoCustomControlDlg dlg;
 	m_pMainWnd = &dlg;
