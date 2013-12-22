@@ -64,7 +64,9 @@ BOOL CTestEmoCustomControlApp::InitInstance()
 	// such as the name of your company or organization
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
 
-	// create database here
+	/*	Create database here if does not exist
+		If exist open it and load records
+	*/
 	BOOL bSuccess;
     bSuccess = FALSE;
 	g_pChatRecords = new CChatRecordDB(bSuccess);
