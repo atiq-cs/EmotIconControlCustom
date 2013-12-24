@@ -160,8 +160,17 @@ BOOL CTestEmoCustomControlDlg::OnInitDialog()
 	m_pTooltip->Activate(TRUE);
 	*/
 
+	// Load history from database and update charbox
+
+	// Test Insertion of information
+	// primarily important operation here is to sent the text and print
+	/*CTime timeDate = CTime::GetCurrentTime();
+	m_ChatEmoBox.PostChatMessage(TEXT("Saint Atique testing"), timeDate);*/
+	// m_chatBoxEditCtrl.SetWindowText(_T(""));
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
+
 
 void CTestEmoCustomControlDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {

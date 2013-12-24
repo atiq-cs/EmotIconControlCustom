@@ -67,42 +67,42 @@ BOOL CTestEmoCustomControlApp::InitInstance()
 	/*	Create database here if does not exist
 		If exist open it and load records
 	*/
-	BOOL bSuccess;
-    bSuccess = FALSE;
-	g_pChatRecords = new CChatRecordDB(bSuccess);
+	// g_pChatRecords = new CChatRecordDB();
 
 	//if (!bSuccess || NULL == g_pChatRecords || NULL == g_pChatRecords->Create(NULL, AfxGetInstanceHandle()))
-	if (!bSuccess || NULL == g_pChatRecords || FALSE == g_pChatRecords->Open(m_hInstance))
+	/*if (NULL == g_pChatRecords || FALSE == g_pChatRecords->Open())
     {
+		MessageBox(NULL, L"Create Database Failure.", L"Database", MB_OK);
         delete g_pChatRecords;
         g_pChatRecords = NULL;
 		return FALSE;
+    }*/
+
+	CTestEmoCustomControlDlg *pdlgModeless = new CTestEmoCustomControlDlg(NULL);
+	m_pMainWnd = pdlgModeless;
+	pdlgModeless->Create(CTestEmoCustomControlDlg::IDD);
+	pdlgModeless->ShowWindow(SW_SHOWNORMAL);
+	pdlgModeless->UpdateWindow();
+
+
+	MSG Msg;
+	while(GetMessage(&Msg, NULL, 0, 0))
+    {
+		if(!IsDialogMessage(pdlgModeless->GetSafeHwnd(), &Msg))
+        {
+            TranslateMessage(&Msg);
+            DispatchMessage(&Msg);
+        }
     }
 
-	CTestEmoCustomControlDlg dlg;
-	m_pMainWnd = &dlg;
-	INT_PTR nResponse = dlg.DoModal();
-	if (nResponse == IDOK)
-	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with OK
-	}
-	else if (nResponse == IDCANCEL)
-	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with Cancel
-	}
-	else if (nResponse == -1)
-	{
-		TRACE(traceAppMsg, 0, "Warning: dialog creation failed, so application is terminating unexpectedly.\n");
-	}
 
-	if (g_pChatRecords) {
+	/*if (g_pChatRecords) {
         delete g_pChatRecords;
         g_pChatRecords = NULL;
-	}
+	}*/
 
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
+
 	return FALSE;
 }
