@@ -37,8 +37,7 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
-	virtual void inline PostNcDestroy() {delete this;}
-
+	virtual void inline PostNcDestroy() { CDialog::PostNcDestroy();  delete this;} 
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedOk();
@@ -51,6 +50,7 @@ public:
 
 	enum { IDD = IDD_TESTEMOCUSTOMCONTROL_DIALOG };
 
+// data members
 private:
 	CChatControl m_ChatEmoBox;
 	CChatEdit m_chatBoxEditCtrl;
@@ -64,6 +64,6 @@ private:
 	// Tool-tip
 	// minimize
 	// bool isMinimized;
-//protected:
+protected:
 	HICON m_hIcon;
 };

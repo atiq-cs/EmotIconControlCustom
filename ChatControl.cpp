@@ -243,12 +243,16 @@ void CChatControl::OnPaint() {
 	// avoid paint when record is inserted
 	if (m_vChatRecords.empty()) {
 		// Dummy code to unblock tool-tip for all controls in the dialog
-		PAINTSTRUCT ps;
+		CTime timeDate = CTime::GetCurrentTime();
+		PostChatMessage(TEXT("Saint Atique testing :)"), timeDate);
+		PostChatMessage(TEXT("Saint Atique double :P testing :POOP"), timeDate);
+
+		/*PAINTSTRUCT ps;
 		m_pDC = BeginPaint(&ps);
 		m_pDC->TextOut(0, 0, _T(" "));
 		EndPaint(&ps);
 		m_pDC = NULL;
-		return;
+		return;*/
 	}
 
 	if (m_pDC)
