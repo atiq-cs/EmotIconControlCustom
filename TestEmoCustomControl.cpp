@@ -12,7 +12,6 @@
 #define new DEBUG_NEW
 #endif
 
-
 CChatRecordDB* g_pChatRecords;
 
 
@@ -78,10 +77,16 @@ BOOL CTestEmoCustomControlApp::InitInstance()
 		return FALSE;
     }*/
 
+	// ref for working sample with modeless dialog: http://simplesamples.info/MFC/ModelessDialogs.html
+	// msdn ref: http://msdn.microsoft.com/en-us/library/hf0yazk7.aspx
+	// ref: http://support.microsoft.com/kb/103788
 	CTestEmoCustomControlDlg *pdlgModeless = new CTestEmoCustomControlDlg(NULL);
 	m_pMainWnd = pdlgModeless;
-	pdlgModeless->Create(CTestEmoCustomControlDlg::IDD);
-	pdlgModeless->ShowWindow(SW_SHOWNORMAL);
+	if (pdlgModeless->Create(CTestEmoCustomControlDlg::IDD))
+		return TRUE;
+
+	// ShowWindow not required for dialog with WS_VISIBLE style
+	/*pdlgModeless->ShowWindow(SW_SHOWNORMAL);
 	pdlgModeless->UpdateWindow();
 
 

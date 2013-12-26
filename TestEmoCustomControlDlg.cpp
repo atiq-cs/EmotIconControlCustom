@@ -414,3 +414,14 @@ BOOL CTestEmoCustomControlDlg::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt
 
 	return CDialog::OnMouseWheel(nFlags, zDelta, pt);
 }
+
+/*void CTestEmoCustomControlDlg::PostNcDestroy()
+{
+	CDialog::PostNcDestroy();
+	if(m_pParent)
+	{		
+		((CModelessDemoDlg*)m_pParent)->m_pmodeless = NULL;		
+	}
+	delete this;
+}
+*/
